@@ -8,6 +8,6 @@ This was a small "unknown" for me but I'm happy that I solved the problem. It to
 - Python 3
 - PyQT
 - pySerial
-- QTDesigner (easier UI desing)
+- QTDesigner (easier UI design)
 - MPU6050
 - ESP32s
