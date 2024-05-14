@@ -1,5 +1,6 @@
 # Author: Mustafa Osman Dilmaç
 # Simple PYQT6 GUI to read MPU6050 sensor data
+# Update on 14/05/2023 -> Added simple ON/OFF buttons to control LED on ESP32
 
 # -*- coding: utf-8 -*-
 
@@ -11,7 +12,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QLCDNumber, QLabel, QMainWindow,
-    QMenuBar, QSizePolicy, QStatusBar, QWidget)
+    QMenuBar, QSizePolicy, QStatusBar, QWidget, QPushButton)
 from PySide6 import QtWidgets
 import time
 import serial
@@ -61,6 +62,18 @@ class Ui_MainWindow(object):
         self.label_6 = QLabel(self.centralwidget)
         self.label_6.setObjectName(u"label_6")
         self.label_6.setGeometry(QRect(410, 140, 49, 16))
+        
+        # ON/OFF butonları
+        self.ledOnButton = QPushButton(self.centralwidget)
+        self.ledOnButton.setObjectName(u"ledOnButton")
+        self.ledOnButton.setGeometry(QRect(250, 240, 81, 81))
+        self.ledOnButton.clicked.connect(self.ledOn) # -> ledOn fonksiyonu çağrılıyor
+       
+        self.ledOffButton = QPushButton(self.centralwidget)
+        self.ledOffButton.setObjectName(u"ledOffButton")
+        self.ledOffButton.setGeometry(QRect(360, 240, 81, 81))
+        self.ledOffButton.clicked.connect(self.ledOff) # -> ledOff fonksiyonu çağrılıyor
+        
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
@@ -83,6 +96,8 @@ class Ui_MainWindow(object):
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"GyroX", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"GyroY", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"GyroZ", None))
+        self.ledOnButton.setText(QCoreApplication.translate("MainWindow", u"ON", None))
+        self.ledOffButton.setText(QCoreApplication.translate("MainWindow", u"OFF", None))
     # retranslateUi
     
     # serial porttan veri okuma fonksiyonu
@@ -101,6 +116,12 @@ class Ui_MainWindow(object):
         self.gyroxLCD.display(float(read_data[3]))
         self.gyroyLCD.display(float(read_data[4]))
         self.gyrozLCD.display(float(read_data[5]))
+        
+    def ledOn(self):
+        esp32.write(b'1')
+    
+    def ledOff(self):
+        esp32.write(b'0')
             
 # portları listeleme -> mikrokontrolcünün bağlı olduğu portu bulma
 # ports = list_ports.comports()
