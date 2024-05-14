@@ -1,6 +1,6 @@
 # Author: Mustafa Osman Dilmaç
 # Simple PYQT6 GUI to read MPU6050 sensor data
-# Update on 14/05/2023 -> Added simple ON/OFF buttons to control LED on ESP32
+# Update on 14/05/2024 -> Added simple ON/OFF buttons to control LED on ESP32
 
 # -*- coding: utf-8 -*-
 
