@@ -6,13 +6,14 @@
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt, QTimer, QThread)
+    QSize, QTime, QUrl, Qt, QThread, Signal, QTimer)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QGroupBox, QHBoxLayout, QLCDNumber, QLabel, QMainWindow,
-    QMenuBar, QSizePolicy, QStatusBar, QWidget, QPushButton)
+from PySide6.QtWidgets import (QApplication, QGroupBox, QHBoxLayout, QLCDNumber,
+    QLabel, QMainWindow, QPushButton, QSizePolicy,
+    QStatusBar, QWidget)
 from PySide6 import QtWidgets
 import time
 import serial
@@ -110,6 +111,14 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
+        
+        self.CameraThread = Camera_Worker() # -> camera thread oluşturuluyor
+        self.CameraThread.ImageUpdate.connect(self.ImageUpdateSlot) # -> camera thread sinyali bağlanıyor
+        self.CameraThread.start() # -> camera thread başlatılıyor
+        
+    def ImageUpdateSlot(self, image):
+        self.VideoFeedLabel.setPixmap(QPixmap.fromImage(image))
+        
     # setupUi
 
     def retranslateUi(self, MainWindow):
@@ -166,6 +175,24 @@ def read_and_update(ui):
     data = ui.readData()
     ui.writeData(data)
     
+class Camera_Worker(QThread):
+    ImageUpdate = Signal(QImage) # -> the tutorial I watched used pyqtSignal but I guess its changed
+    def run(self):
+        self.ThreadActive = True
+        Capture = cv2.VideoCapture(0)
+        while self.ThreadActive:
+            ret, frame = Capture.read()
+            if ret:
+                RGBImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                FlippedImage = cv2.flip(RGBImage, 1)
+                ConvertToQtFormat = QImage(FlippedImage.data, FlippedImage.shape[1], FlippedImage.shape[0], QImage.Format_RGB888)
+                pic = ConvertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio) # -> 891, 331 video feed label boyutları, ama burada 640x480 verdim sorun yok
+                self.ImageUpdate.emit(pic)
+    
+    def stop(self):
+        self.ThreadActive = False
+        self.quit()
+
 def main():
     app = QApplication(sys.argv)
     MainWindow = QMainWindow()
