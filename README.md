@@ -6,6 +6,7 @@ This was a small "unknown" for me but I'm happy that I solved the problem. It to
 
 ## Updates
 14/05/2024 -> Added simple led to the circuit to not only read but also send serial data to control components. Will be useful in future for remote control applications.
+
 18/05/2024 -> Added camera feed with multithreading. The project changed course and now it started to resemble a complete gui with camera feed, sensor data monitoring and sending data over serial.
 
 ## Problems
