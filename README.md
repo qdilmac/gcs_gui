@@ -4,6 +4,9 @@
 I wrote this project to create a simple PyQt GUI and read data from an MPU6050 sensor connected to an ESP32 microcontroller. The sensor data (accelerometer and gyroscope readings) are displayed on the GUI's designated LCD displays.
 This was a small "unknown" for me but I'm happy that I solved the problem. It took some time but I managed it in couple hours. If this helps you out in any way, feel free to use it!
 
+## Updates
+14/05/2024 -> Added simple led to the circuit to not only read but also send serial data to control components. Will be useful in future for remote control applications.
+
 ## Requirements
 - Python 3
 - PyQT
