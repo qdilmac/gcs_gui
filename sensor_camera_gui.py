@@ -193,18 +193,18 @@ class Data_Worker(QThread):
         return read_data
     
     # okunan veriyi yazdırma fonksiyonu
-    def writeData(self, read_data):
-        self.accelxLCD.display(float(read_data[0]))
-        self.accelyLCD.display(float(read_data[1]))
-        self.accelzLCD.display(float(read_data[2]))
-        self.gyroxLCD.display(float(read_data[3]))
-        self.gyroyLCD.display(float(read_data[4]))
-        self.gyrozLCD.display(float(read_data[5]))
+    # def writeData(self, read_data):
+    #     self.accelxLCD.display(float(read_data[0]))
+    #     self.accelyLCD.display(float(read_data[1]))
+    #     self.accelzLCD.display(float(read_data[2]))
+    #     self.gyroxLCD.display(float(read_data[3]))
+    #     self.gyroyLCD.display(float(read_data[4]))
+    #     self.gyrozLCD.display(float(read_data[5]))
         
-        # veri okuma fonksiyonu
-    def read_and_update(ui):
-        data = ui.readData()
-        ui.writeData(data)
+    #     # veri okuma fonksiyonu
+    # def read_and_update(ui):
+    #     data = ui.readData()
+    #     ui.writeData(data)
 
     def run(self):
         self.ThreadActive = True
