@@ -116,8 +116,20 @@ class Ui_MainWindow(object):
         self.CameraThread.ImageUpdate.connect(self.ImageUpdateSlot) # -> camera thread sinyali bağlanıyor
         self.CameraThread.start() # -> camera thread başlatılıyor
         
+        self.DataThread = Data_Worker() # -> data thread oluşturuluyor
+        self.DataThread.DataUpdate.connect(self.DataUpdateSlot) # -> data thread sinyali bağlanıyor
+        self.DataThread.start() # -> data thread başlatılıyor
+        
     def ImageUpdateSlot(self, image):
         self.VideoFeedLabel.setPixmap(QPixmap.fromImage(image))
+        
+    def DataUpdateSlot(self, data):
+        self.accelxLCD.display(float(data[0]))
+        self.accelyLCD.display(float(data[1]))
+        self.accelzLCD.display(float(data[2]))
+        self.gyroxLCD.display(float(data[3]))
+        self.gyroyLCD.display(float(data[4]))
+        self.gyrozLCD.display(float(data[5]))
         
     # setupUi
 
@@ -136,23 +148,6 @@ class Ui_MainWindow(object):
         self.label_8.setStyleSheet(QCoreApplication.translate("MainWindow", u"0", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Video Feed", None))
     # retranslateUi
-    
-    # serial porttan veri okuma fonksiyonu
-    def readData(self):
-        time.sleep(0.1)
-        read_data = esp32.readline().decode().split('\n')
-        read_data = read_data[0].split(' ')
-        print("DATA son hâli: " , read_data)
-        return read_data
-    
-    # okunan veriyi yazdırma fonksiyonu
-    def writeData(self, read_data):
-        self.accelxLCD.display(float(read_data[0]))
-        self.accelyLCD.display(float(read_data[1]))
-        self.accelzLCD.display(float(read_data[2]))
-        self.gyroxLCD.display(float(read_data[3]))
-        self.gyroyLCD.display(float(read_data[4]))
-        self.gyrozLCD.display(float(read_data[5]))
         
     def ledOn(self):
         esp32.write(b'1')
@@ -168,12 +163,6 @@ class Ui_MainWindow(object):
 # esp32 serial port bağlantısı
 esp32 = serial.Serial("COM6", 115200)
 print("Bağlı olan COM: " + esp32.name)
-
-
-# veri okuma fonksiyonu
-def read_and_update(ui):
-    data = ui.readData()
-    ui.writeData(data)
     
 class Camera_Worker(QThread):
     ImageUpdate = Signal(QImage) # -> the tutorial I watched used pyqtSignal but I guess its changed
@@ -193,6 +182,40 @@ class Camera_Worker(QThread):
         self.ThreadActive = False
         self.quit()
 
+class Data_Worker(QThread):
+    DataUpdate = Signal(list)
+    # serial porttan veri okuma fonksiyonu
+    def readData(self):
+        time.sleep(0.1)
+        read_data = esp32.readline().decode().split('\n')
+        read_data = read_data[0].split(' ')
+        print("DATA son hâli: " , read_data)
+        return read_data
+    
+    # okunan veriyi yazdırma fonksiyonu
+    def writeData(self, read_data):
+        self.accelxLCD.display(float(read_data[0]))
+        self.accelyLCD.display(float(read_data[1]))
+        self.accelzLCD.display(float(read_data[2]))
+        self.gyroxLCD.display(float(read_data[3]))
+        self.gyroyLCD.display(float(read_data[4]))
+        self.gyrozLCD.display(float(read_data[5]))
+        
+        # veri okuma fonksiyonu
+    def read_and_update(ui):
+        data = ui.readData()
+        ui.writeData(data)
+
+    def run(self):
+        self.ThreadActive = True
+        while self.ThreadActive:
+            data = Data_Worker.readData(self)
+            self.DataUpdate.emit(data)
+            
+    def stop(self):
+        self.ThreadActive = False
+        self.quit()
+        
 def main():
     app = QApplication(sys.argv)
     MainWindow = QMainWindow()
@@ -200,12 +223,12 @@ def main():
     ui.setupUi(MainWindow)
     MainWindow.show()
     
-    # sensör verisini güncellemek için timer
-    timer = QTimer()
-    timer.timeout.connect(lambda: read_and_update(ui))
-    timer.start(1000)  # esp kodu gibi milisaniye delay(1000 ms = 1 saniye)
+    # # sensör verisini güncellemek için timer
+    # timer = QTimer()
+    # timer.timeout.connect(lambda: read_and_update(ui))
+    # timer.start(1000)  # esp kodu gibi milisaniye delay(1000 ms = 1 saniye)
     
-    read_and_update(ui)
+    # read_and_update(ui)
     sys.exit(app.exec())
     
 # uygulamayı başlatma               
