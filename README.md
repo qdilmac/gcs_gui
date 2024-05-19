@@ -9,8 +9,10 @@ This was a small "unknown" for me but I'm happy that I solved the problem. It to
 
 18/05/2024 -> Added camera feed with multithreading. The project changed course and now it started to resemble a complete gui with camera feed, sensor data monitoring and sending data over serial.
 
+19/05/2024 -> Added another thread for data monitoring. This solved stuttering in camera feed.
+
 ## Problems
-To use camera feed without 1 second pauses I need to find efficient way to read data without stopping camera feed every second. I might be able to use another thread for it. -> <b>UNSOLVED</b>
+To use camera feed without 1 second pauses I need to find efficient way to read data without stopping camera feed every second. I might be able to use another thread for it. -> <b>SOLVED</b>
 
 ## Requirements
 - Python 3
