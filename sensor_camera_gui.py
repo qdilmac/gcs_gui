@@ -163,8 +163,8 @@ class Ui_MainWindow(object):
 #     print(port)
 
 # esp32 serial port bağlantısını sağlama, şimdilik Hardcoded
-esp32 = serial.Serial("COM6", 115200)
-print("Bağlı olan COM: " + esp32.name)
+# esp32 = serial.Serial("COM6", 115200)
+# print("Bağlı olan COM: " + esp32.name)
     
 # Camera Thread
 class Camera_Worker(QThread):
@@ -173,14 +173,27 @@ class Camera_Worker(QThread):
     def run(self):
         self.ThreadActive = True
         Capture = cv2.VideoCapture(0)
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml') # -> yüz tespiti için haarcascade dosyası
         while self.ThreadActive:
             ret, frame = Capture.read()
             if ret:
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30)) # -> yüz tespiti
+                for (x, y, w, h) in faces: # -> yüzün etrafına dikdörtgen çizme
+                    cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2) # -> dikdörtgenin rengi ve kalınlığı
+                    # Çizilen dikdörtgenin merkezini hesaplama
+                    center_x = x + w // 2
+                    center_y = y + h // 2
+                    # Bulunan merkezi bounfing boxun üstüne yazdırma
+                    cv2.putText(frame, f"({center_x}, {center_y})", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
                 RGBImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                FlippedImage = cv2.flip(RGBImage, 1)
-                ConvertToQtFormat = QImage(FlippedImage.data, FlippedImage.shape[1], FlippedImage.shape[0], QImage.Format_RGB888)
-                pic = ConvertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio) # -> 891, 331 video feed label boyutları, ama burada 640x480 verdim sorun yok
-                self.ImageUpdate.emit(pic) # -> ImageUpdate sinyali işlenmiş resmi ImageUpdateSlot fonksiyonuna gönderiyor (emit ediyor)
+                # FlippedImage = cv2.flip(RGBImage, 1)
+                ConvertToQtFormat = QImage(RGBImage.data, RGBImage.shape[1], RGBImage.shape[0], QImage.Format_RGB888)
+                # yukarıdaki satırda RGBImage yerine FlippedImage yazarak görüntüyü ters çevirebiliriz.
+                # bu işlem gerçek hayattaki hareket yönüne göre gördüğümüz kamera verisini ayarlamamızı sağlıyor.
+                # ben şimdilik ters çevirmeden RGBImage kullanıyorum. Üstüne yazdığım metinler ters olmasın diye.
+                pic = ConvertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
+                self.ImageUpdate.emit(pic)
     
     def stop(self):
         self.ThreadActive = False
