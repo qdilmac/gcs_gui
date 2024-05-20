@@ -11,6 +11,11 @@ This was a small "unknown" for me but I'm happy that I solved the problem. It to
 
 19/05/2024 -> Added another thread for data monitoring. This solved stuttering in camera feed.
 
+## TO-DO
+Test or implement communication over a network. Eliminate the need for wired serial connection. -> <b>WIP</b> 
+
+Update GUI -> <b>WIP</b> 
+
 ## Problems
 To use camera feed without 1 second pauses I need to find efficient way to read data without stopping camera feed every second. I might be able to use another thread for it. -> <b>SOLVED</b>
 
