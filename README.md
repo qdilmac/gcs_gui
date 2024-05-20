@@ -14,6 +14,8 @@ This was a small "unknown" for me but I'm happy that I solved the problem. It to
 ## TO-DO
 Test or implement communication over a network. Eliminate the need for wired serial connection. -> <b>WIP</b> 
 
+Add face detection to test processed image monitoring -> <b>WIP</b> 
+
 Update GUI -> <b>WIP</b> 
 
 ## Problems
