@@ -11,7 +11,7 @@ This was a small "unknown" for me but I'm happy that I solved the problem. It to
 
 19/05/2024 -> Added another thread for data monitoring. This solved stuttering in camera feed.
 
-##TO-DO
+## TO-DO
 Test or implement communication over a network. Eliminate the need for wired serial connection. -> <b>WIP</b> 
 
 ## Problems
