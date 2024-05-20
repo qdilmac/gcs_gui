@@ -1,6 +1,5 @@
 # Author: Mustafa Osman Dilmaç
-# Simple PYQT6 GUI to read MPU6050 sensor data
-# Update on 14/05/2024 -> Added simple ON/OFF buttons to control LED on ESP32
+# Simple PYQT6 GUI to monitor sensor data from ESP32 and camera feed from webcam
 
 # -*- coding: utf-8 -*-
 
@@ -86,6 +85,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout = QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        
         self.ledOnButton = QPushButton(self.horizontalLayoutWidget)
         self.ledOnButton.setObjectName(u"ledOnButton")
         self.ledOnButton.clicked.connect(self.ledOn) # -> ledOn fonksiyonu çağrılıyor
@@ -113,17 +113,17 @@ class Ui_MainWindow(object):
         QMetaObject.connectSlotsByName(MainWindow)
         
         self.CameraThread = Camera_Worker() # -> camera thread oluşturuluyor
-        self.CameraThread.ImageUpdate.connect(self.ImageUpdateSlot) # -> camera thread sinyali bağlanıyor
+        self.CameraThread.ImageUpdate.connect(self.ImageUpdateSlot) # -> camera thread içerisindeki ImageUpdate sinyali ImageUpdateSlot fonksiyonuna bağlanıyor
         self.CameraThread.start() # -> camera thread başlatılıyor
         
         self.DataThread = Data_Worker() # -> data thread oluşturuluyor
-        self.DataThread.DataUpdate.connect(self.DataUpdateSlot) # -> data thread sinyali bağlanıyor
+        self.DataThread.DataUpdate.connect(self.DataUpdateSlot) # -> data thread içerisindeki DataUpdate sinyali DataUpdateSlot fonksiyonuna bağlanıyor
         self.DataThread.start() # -> data thread başlatılıyor
         
-    def ImageUpdateSlot(self, image):
-        self.VideoFeedLabel.setPixmap(QPixmap.fromImage(image))
+    def ImageUpdateSlot(self, image): # -> ImageUpdate sinyali ile gelen resmi VideoFeedLabel'a set ediyor
+        self.VideoFeedLabel.setPixmap(QPixmap.fromImage(image)) 
         
-    def DataUpdateSlot(self, data):
+    def DataUpdateSlot(self, data): # -> DataUpdate sinyali ile gelen veriyi LCD'lere yazdırıyor
         self.accelxLCD.display(float(data[0]))
         self.accelyLCD.display(float(data[1]))
         self.accelzLCD.display(float(data[2]))
@@ -148,24 +148,28 @@ class Ui_MainWindow(object):
         self.label_8.setStyleSheet(QCoreApplication.translate("MainWindow", u"0", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Video Feed", None))
     # retranslateUi
-        
+       
     def ledOn(self):
         esp32.write(b'1')
+        print("LED ON")
     
     def ledOff(self):
         esp32.write(b'0')
+        print("LED OFF")
             
 # portları listeleme -> mikrokontrolcünün bağlı olduğu portu bulma
 # ports = list_ports.comports()
 # for port in ports:
 #     print(port)
 
-# esp32 serial port bağlantısı
+# esp32 serial port bağlantısını sağlama, şimdilik Hardcoded
 esp32 = serial.Serial("COM6", 115200)
 print("Bağlı olan COM: " + esp32.name)
     
+# Camera Thread
 class Camera_Worker(QThread):
     ImageUpdate = Signal(QImage) # -> the tutorial I watched used pyqtSignal but I guess its changed
+    
     def run(self):
         self.ThreadActive = True
         Capture = cv2.VideoCapture(0)
@@ -176,14 +180,16 @@ class Camera_Worker(QThread):
                 FlippedImage = cv2.flip(RGBImage, 1)
                 ConvertToQtFormat = QImage(FlippedImage.data, FlippedImage.shape[1], FlippedImage.shape[0], QImage.Format_RGB888)
                 pic = ConvertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio) # -> 891, 331 video feed label boyutları, ama burada 640x480 verdim sorun yok
-                self.ImageUpdate.emit(pic)
+                self.ImageUpdate.emit(pic) # -> ImageUpdate sinyali işlenmiş resmi ImageUpdateSlot fonksiyonuna gönderiyor (emit ediyor)
     
     def stop(self):
         self.ThreadActive = False
         self.quit()
 
+# Data Thread
 class Data_Worker(QThread):
     DataUpdate = Signal(list)
+    
     # serial porttan veri okuma fonksiyonu
     def readData(self):
         time.sleep(0.1)
@@ -210,12 +216,12 @@ class Data_Worker(QThread):
         self.ThreadActive = True
         while self.ThreadActive:
             data = Data_Worker.readData(self)
-            self.DataUpdate.emit(data)
+            self.DataUpdate.emit(data) # -> DataUpdate sinyali işlenmiş veriyi DataUpdateSlot fonksiyonuna gönderiyor (emit ediyor)
             
     def stop(self):
         self.ThreadActive = False
         self.quit()
-        
+
 def main():
     app = QApplication(sys.argv)
     MainWindow = QMainWindow()
@@ -227,11 +233,11 @@ def main():
     # timer = QTimer()
     # timer.timeout.connect(lambda: read_and_update(ui))
     # timer.start(1000)  # esp kodu gibi milisaniye delay(1000 ms = 1 saniye)
-    
     # read_and_update(ui)
+    
     sys.exit(app.exec())
     
-# uygulamayı başlatma               
+# uygulamayı başlatma
 if __name__ == "__main__":
     main()
     
