@@ -14,11 +14,13 @@ This was a small "unknown" for me but I'm happy that I solved the problem. It to
 20/05/2024 -> Added face detection.
 
 ## TO-DO
-Test or implement communication over a network. Eliminate the need for wired serial connection. -> <b>WIP</b> 
+Test or implement communication over a network. Eliminate the need for wired serial connection. -> <b>WIP</b>
 
-Add face detection to test processed image monitoring -> <b>DONE</b> 
+Add face detection to test processed image monitoring -> <b>DONE</b>
 
-Update GUI -> <b>WIP</b> 
+Add angle estimation using Kalman filtering. -> <b>WIP</b>
+
+Update GUI -> <b>WIP</b>
 
 ## Problems
 To use camera feed without 1 second pauses I need to find efficient way to read data without stopping camera feed every second. I might be able to use another thread for it. -> <b>SOLVED</b>
