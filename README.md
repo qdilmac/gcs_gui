@@ -27,9 +27,11 @@ Add angle estimation using Kalman filtering. -> <b>WIP</b>
 Update GUI for v2-> <b>DONE</b>
 
 ## Problems
-To use camera feed without 1 second pauses I need to find efficient way to read data without stopping camera feed every second. I might be able to use another thread for it. -> <b>SOLVED</b>
+To use camera feed without 1 second pauses I need to find efficient way to read data without stopping camera feed every second. I might be able to use another thread for it. -> <b>SOLVED, implementing another thread works</b>
 
-"TypeError: '>=' not supported between instances of 'PySide6.QtGui.QImage' and 'int'". Even tho the type of FaceDetection signal is integer, this error occurs. But program works well without any problem. -> <b>UNSOLVED</b> 
+"TypeError: '>=' not supported between instances of 'PySide6.QtGui.QImage' and 'int'". Even tho the type of FaceDetection signal is integer, this error occurs. But program works well without any problem. -> <b>SOLVED, it appears in some places I wrote ImageUpdate signal instead of FaceDetection signal *facepalm* </b> 
+
+I have to click twice to the "Stop Camera Feed" button to clear videofeed_label and update "detection_label" -> <b>UNSOLVED</b>
 
 ## Requirements
 - Python 3

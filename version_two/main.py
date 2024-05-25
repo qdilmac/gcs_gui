@@ -349,27 +349,31 @@ class Ui_MainWindow(object):
         self.CameraThread.ImageUpdate.connect(self.ImageUpdateSlot) # -> camera thread içerisindeki ImageUpdate sinyali ImageUpdateSlot fonksiyonuna bağlanıyor
         self.CameraThread.FacesDetected.connect(self.update_detection_label) # -> yüz tespiti sinyali detection_label'ı güncellemek için kullanılacak
         self.camerastart_button.clicked.connect(self.start_camera) 
-        self.camerastop_button.clicked.connect(self.stop_camera)
+        self.camerastop_button.clicked.connect(self.stop_camera, Qt.QueuedConnection) # -> stop_camera fonksiyonu thread içerisinde çalıştığı için queued connection kullanıyoruz
+        #queued connection ile thread içerisinde çalışan fonksiyonun bitmesini bekliyoruz. Bu detecion_label'ı güncellemede işe yaradı ama hala videofeed_label'da bir frame daha geliyor.
 
     def start_camera(self):
         self.CameraThread.start()
+        self.camerastart_button.setStyleSheet("background-color: green;")
+        self.camerastop_button.setStyleSheet("background-color: grey;")
         self.CameraThread.FacesDetected.connect(self.update_detection_label)
 
     def stop_camera(self):
+        self.camerastart_button.setStyleSheet("background-color: grey;")
+        self.camerastop_button.setStyleSheet("background-color: red;")
         self.CameraThread.stop()
         self.CameraThread.wait() # -> thread'in bitmesini bekliyoruz -> aşağıdaki sorunu bu da çözmedi :d
         self.CameraThread.FacesDetected.disconnect(self.update_detection_label)
-        self.detection_label.setText("IDLE")  # detection_label'ı temizleyin
+        self.detection_label.setText("IDLE")  # detection_label'ı temizleyin    
         self.detection_label.setStyleSheet("background-color: orange;")
         self.videofeed_label.clear() # -> videofeed_label temizlemesi gerek ama temizledikten sonra geriye bir frame daha geliyor. Tekrar butona basılması gerekiyor.
     
-    @Slot(int) # -> yüz tespiti sinyalini int olarak almayı sağlıyor. TypeError sorununu bu da çözmedi
+    @Slot (int) # -> yüz tespiti sinyali veri tipini belirtiyoruz, çift dikiş daha sağlam olsun diye
     def update_detection_label(self, detected_faces: int):
         if detected_faces >= 1:
             self.detection_label.setText(f"{detected_faces} adet Yüz Tespit Edildi")
             self.detection_label.setStyleSheet("background-color: green;")
         else:
-            print("Camera Feed Stopped!")
             self.detection_label.setText("Yüz Tespiti Yapılamadı!")
             self.detection_label.setStyleSheet("background-color: red;")
     
