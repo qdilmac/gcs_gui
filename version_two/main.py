@@ -4,7 +4,7 @@
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt, Signal, QThread)
+    QSize, QTime, QUrl, Qt, Signal, QThread, Slot)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
@@ -286,7 +286,7 @@ class Ui_MainWindow(object):
         self.camerastop_button = QPushButton(self.gridLayoutWidget_3)
         self.camerastop_button.setObjectName(u"camerastop_button")
         self.camerastop_button.setFont(font1)
-
+        
         self.gridLayout_6.addWidget(self.camerastop_button, 1, 0, 1, 1)
 
 
@@ -344,6 +344,36 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
+        
+        self.CameraThread = Camera_Worker() # -> camera thread oluşturuluyor
+        self.CameraThread.ImageUpdate.connect(self.ImageUpdateSlot) # -> camera thread içerisindeki ImageUpdate sinyali ImageUpdateSlot fonksiyonuna bağlanıyor
+        self.CameraThread.FacesDetected.connect(self.update_detection_label) # -> yüz tespiti sinyali detection_label'ı güncellemek için kullanılacak
+        self.camerastart_button.clicked.connect(self.start_camera) 
+        self.camerastop_button.clicked.connect(self.stop_camera)
+
+    def start_camera(self):
+        self.CameraThread.start()
+        self.CameraThread.ImageUpdate.connect(self.update_detection_label)
+
+    def stop_camera(self):
+        self.CameraThread.stop()
+        self.CameraThread.ImageUpdate.disconnect(self.update_detection_label)
+        self.CameraThread.wait() # -> thread'in bitmesini bekliyoruz -> aşağıdaki sorunu bu da çözmedi :d
+        self.videofeed_label.clear() # -> videofeed_label temizlemesi gerek ama temizledikten sonra geriye bir frame daha geliyor. Tekrar butona basılması gerekiyor.
+    
+    @Slot(int) # -> yüz tespiti sinyalini int olarak almayı sağlıyor. TypeError sorununu bu da çözmedi
+    def update_detection_label(self, detected_faces: int):
+        if detected_faces >= 1:
+            self.detection_label.setText(f"{detected_faces} adet Yüz Tespit Edildi")
+            self.detection_label.setStyleSheet("background-color: green;")
+        else:
+            print("Camera Feed Stopped!")
+            self.detection_label.setText("Yüz Tespiti Yapılamadı!")
+            self.detection_label.setStyleSheet("background-color: red;")
+    
+    @Slot (QImage)
+    def ImageUpdateSlot(self, image): # -> ImageUpdate sinyali ile gelen resmi VideoFeedLabel'a set ediyor
+        self.videofeed_label.setPixmap(QPixmap.fromImage(image)) 
     # setupUi
 
     def retranslateUi(self, MainWindow):
@@ -377,6 +407,43 @@ class Ui_MainWindow(object):
         self.datastop_button.setText(QCoreApplication.translate("MainWindow", u"Stop Data Reading", None))
         self.detection_label.setText("")
     # retranslateUi
+
+# Camera Thread
+class Camera_Worker(QThread):
+    ImageUpdate = Signal(QImage) # -> the tutorial I watched used pyqtSignal but I guess its changed
+    FacesDetected = Signal(int) # -> yüz tespiti sinyali, detection_label'ı güncellemek için kullanılacak
+    
+    def run(self):
+        self.ThreadActive = True
+        Capture = cv2.VideoCapture(0)
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml') # -> yüz tespiti için haarcascade dosyası
+        while self.ThreadActive:
+            ret, frame = Capture.read()
+            if ret:
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30)) # -> yüz tespiti
+                detected_faces = len(faces)
+                self.FacesDetected.emit(detected_faces) # -> yüz tespiti sinyali
+                for (x, y, w, h) in faces: # -> yüzün etrafına dikdörtgen çizme
+                    cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2) # -> dikdörtgenin rengi ve kalınlığı
+                    # Çizilen dikdörtgenin merkezini hesaplama
+                    center_x = x + w // 2
+                    center_y = y + h // 2
+                    # Bulunan merkezi bounfing boxun üstüne yazdırma
+                    cv2.putText(frame, f"({center_x}, {center_y})", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+                RGBImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                # FlippedImage = cv2.flip(RGBImage, 1)
+                ConvertToQtFormat = QImage(RGBImage.data, RGBImage.shape[1], RGBImage.shape[0], QImage.Format_RGB888)
+                # yukarıdaki satırda RGBImage yerine FlippedImage yazarak görüntüyü ters çevirebiliriz.
+                # bu işlem gerçek hayattaki hareket yönüne göre gördüğümüz kamera verisini ayarlamamızı sağlıyor.
+                # ben şimdilik ters çevirmeden RGBImage kullanıyorum. Üstüne yazdığım metinler ters olmasın diye.
+                
+                pic = ConvertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
+                self.ImageUpdate.emit(pic)
+    
+    def stop(self):
+        self.ThreadActive = False
+        self.quit()
 
 
 def main():

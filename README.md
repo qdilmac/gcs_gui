@@ -25,6 +25,8 @@ Update GUI -> <b>WIP</b>
 ## Problems
 To use camera feed without 1 second pauses I need to find efficient way to read data without stopping camera feed every second. I might be able to use another thread for it. -> <b>SOLVED</b>
 
+"TypeError: '>=' not supported between instances of 'PySide6.QtGui.QImage' and 'int'". Even tho the type of FaceDetection signal is integer, this error occurs. But program works well without any problem. -> <b>UNSOLVED</b> 
+
 ## Requirements
 - Python 3
 - PyQT / Pyside
