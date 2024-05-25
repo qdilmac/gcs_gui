@@ -4,6 +4,8 @@
 I wrote this project to create a simple Pyside GUI and read data from an MPU6050 sensor connected to an ESP32 microcontroller. The sensor data (accelerometer and gyroscope readings) are displayed on the GUI's designated LCD displays.
 This was a small "unknown" for me but I'm happy that I solved the problem. It took some time but I managed it in couple hours. If this helps you out in any way, feel free to use it!
 
+Update 26/05 -> The project took a different route that I have expected but I'm not complaining. The GCS concept is one of the main parts of my robotics (UGV, UAV, Robotic Arm etc.) projects. So every second that i spent on this is worth the time!
+
 ## Updates
 14/05/2024 -> Added simple led to the circuit to not only read but also send serial data to control components. Will be useful in future for remote control applications.
 
