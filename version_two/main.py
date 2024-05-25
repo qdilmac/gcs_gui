@@ -353,12 +353,14 @@ class Ui_MainWindow(object):
 
     def start_camera(self):
         self.CameraThread.start()
-        self.CameraThread.ImageUpdate.connect(self.update_detection_label)
+        self.CameraThread.FacesDetected.connect(self.update_detection_label)
 
     def stop_camera(self):
         self.CameraThread.stop()
-        self.CameraThread.ImageUpdate.disconnect(self.update_detection_label)
         self.CameraThread.wait() # -> thread'in bitmesini bekliyoruz -> aşağıdaki sorunu bu da çözmedi :d
+        self.CameraThread.FacesDetected.disconnect(self.update_detection_label)
+        self.detection_label.setText("IDLE")  # detection_label'ı temizleyin
+        self.detection_label.setStyleSheet("background-color: orange;")
         self.videofeed_label.clear() # -> videofeed_label temizlemesi gerek ama temizledikten sonra geriye bir frame daha geliyor. Tekrar butona basılması gerekiyor.
     
     @Slot(int) # -> yüz tespiti sinyalini int olarak almayı sağlıyor. TypeError sorununu bu da çözmedi
@@ -444,6 +446,7 @@ class Camera_Worker(QThread):
     def stop(self):
         self.ThreadActive = False
         self.quit()
+        self.wait()
 
 
 def main():
