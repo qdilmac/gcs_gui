@@ -17,6 +17,9 @@ import serial
 from serial.tools import list_ports
 import time
 import cv2
+from ultralytics import YOLO
+import torch
+import os
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -277,17 +280,23 @@ class Ui_MainWindow(object):
         self.gridLayout_4.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_6 = QGridLayout()
         self.gridLayout_6.setObjectName(u"gridLayout_6")
-        self.camerastart_button = QPushButton(self.gridLayoutWidget_3)
-        self.camerastart_button.setObjectName(u"camerastart_button")
-        self.camerastart_button.setFont(font1)
-
-        self.gridLayout_6.addWidget(self.camerastart_button, 0, 0, 1, 1)
-
         self.camerastop_button = QPushButton(self.gridLayoutWidget_3)
         self.camerastop_button.setObjectName(u"camerastop_button")
         self.camerastop_button.setFont(font1)
-        
-        self.gridLayout_6.addWidget(self.camerastop_button, 1, 0, 1, 1)
+
+        self.gridLayout_6.addWidget(self.camerastop_button, 2, 0, 1, 1)
+
+        self.camerastart_button_face = QPushButton(self.gridLayoutWidget_3)
+        self.camerastart_button_face.setObjectName(u"camerastart_button_face")
+        self.camerastart_button_face.setFont(font1)
+
+        self.gridLayout_6.addWidget(self.camerastart_button_face, 0, 0, 1, 1)
+
+        self.camerastart_button_object = QPushButton(self.gridLayoutWidget_3)
+        self.camerastart_button_object.setObjectName(u"camerastart_button_object")
+        self.camerastart_button_object.setFont(font1)
+
+        self.gridLayout_6.addWidget(self.camerastart_button_object, 1, 0, 1, 1)
 
 
         self.gridLayout_4.addLayout(self.gridLayout_6, 0, 3, 1, 1)
@@ -347,34 +356,65 @@ class Ui_MainWindow(object):
         
         self.CameraThread = Camera_Worker() # -> camera thread oluşturuluyor
         self.CameraThread.ImageUpdate.connect(self.ImageUpdateSlot) # -> camera thread içerisindeki ImageUpdate sinyali ImageUpdateSlot fonksiyonuna bağlanıyor
-        self.CameraThread.FacesDetected.connect(self.update_detection_label) # -> yüz tespiti sinyali detection_label'ı güncellemek için kullanılacak
-        self.camerastart_button.clicked.connect(self.start_camera) 
+        self.CameraThread.FacesDetected.connect(self.update_detection_label_face) # -> yüz tespiti sinyali detection_label'ı güncellemek için kullanılacak
+        self.camerastart_button_face.clicked.connect(self.start_camera_face) # -> yüz tespiti için kamera başlatma butonuna bağlanıyor
         self.camerastop_button.clicked.connect(self.stop_camera, Qt.QueuedConnection) # -> stop_camera fonksiyonu thread içerisinde çalıştığı için queued connection kullanıyoruz
         #queued connection ile thread içerisinde çalışan fonksiyonun bitmesini bekliyoruz. Bu detecion_label'ı güncellemede işe yaradı ama hala videofeed_label'da bir frame daha geliyor.
 
-    def start_camera(self):
+        self.CameraObjectThread = Camera_Object_Worker() # -> obje tespiti için camera thread oluşturuluyor
+        self.CameraObjectThread.ImageUpdate.connect(self.ImageUpdateSlot) # -> camera thread içerisindeki ImageUpdate sinyali ImageUpdateSlot fonksiyonuna bağlanıyor
+        self.CameraObjectThread.ObjectsDetected.connect(self.update_detection_label_object) # -> obje tespiti sinyali detection_label'ı güncellemek için kullanılacak
+        self.camerastart_button_object.clicked.connect(self.start_camera_object) # -> obje tespiti için kamera başlatma butonuna bağlanıyor
+        
+    def start_camera_face(self):
+        self.CameraObjectThread.stop() # -> obje tespiti thread'ini durdur
+        # time.sleep(1) # -> thread'in bitmesini beklemek için 1 saniye bekle
         self.CameraThread.start()
-        self.camerastart_button.setStyleSheet("background-color: green;")
+        self.camerastart_button_face.setStyleSheet("background-color: green;")
+        self.camerastart_button_object.setStyleSheet("background-color: #343944;")
         self.camerastop_button.setStyleSheet("background-color: #343944;") # -> ana pencerenin renk hex kodu
-        self.CameraThread.FacesDetected.connect(self.update_detection_label)
+        self.CameraThread.FacesDetected.connect(self.update_detection_label_face)
+        
+    def start_camera_object(self):
+        self.CameraThread.stop() # -> yüz tespiti thread'ini durdur
+        # time.sleep(1) # -> yüz tespiti thread'inin bitmesini beklemek için 1 saniye bekletme
+        self.CameraObjectThread.start()
+        self.camerastart_button_object.setStyleSheet("background-color: green;")
+        self.camerastart_button_face.setStyleSheet("background-color: #343944;")
+        self.camerastop_button.setStyleSheet("background-color: #343944;")
+        self.CameraThread.FacesDetected.connect(self.update_detection_label_object)
 
     def stop_camera(self):
-        self.camerastart_button.setStyleSheet("background-color: #343944;")
+        self.camerastart_button_face.setStyleSheet("background-color: #343944;")
+        self.camerastart_button_object.setStyleSheet("background-color: #343944;")
         self.camerastop_button.setStyleSheet("background-color: red;")
         self.detection_label.setText("IDLE")  # detection_label'ı değiştir
         self.detection_label.setStyleSheet("background-color: orange;")
         self.videofeed_label.clear() # -> videofeed_label temizlemesi gerek ama temizledikten sonra geriye bir frame daha geliyor. Tekrar butona basılması gerekiyor.
+       
         self.CameraThread.stop()
         self.CameraThread.wait() # -> thread'in bitmesini bekliyoruz -> çift tıklama sorununu bu da çözmedi :d
-        self.CameraThread.FacesDetected.disconnect(self.update_detection_label)
+        self.CameraThread.FacesDetected.disconnect(self.update_detection_label_face) # -> yüz tespiti sinyalini disconnect et
+       
+        self.CameraObjectThread.stop()
+        self.CameraObjectThread.wait()
+        self.CameraObjectThread.ObjectsDetected.disconnect(self.update_detection_label_object) # -> obje tespiti sinyalini disconnect et 
    
     @Slot (int) # -> yüz tespiti sinyali veri tipini belirtiyoruz, çift dikiş daha sağlam olsun diye
-    def update_detection_label(self, detected_faces: int):
+    def update_detection_label_face(self, detected_faces: int):
         if detected_faces >= 1:
             self.detection_label.setText(f"{detected_faces} adet Yüz Tespit Edildi")
             self.detection_label.setStyleSheet("background-color: green;")
         else:
             self.detection_label.setText("Yüz Tespiti Yapılamadı!")
+            self.detection_label.setStyleSheet("background-color: red;")
+            
+    def update_detection_label_object(self, detected_objects):
+        if detected_objects >= 1:
+            self.detection_label.setText(f"{detected_objects} adet Obje Tespit Edildi")
+            self.detection_label.setStyleSheet("background-color: green;")
+        else:
+            self.detection_label.setText("Obje Tespiti Yapılamadı!")
             self.detection_label.setStyleSheet("background-color: red;")
     
     @Slot (QImage)
@@ -407,8 +447,9 @@ class Ui_MainWindow(object):
         self.led1_button.setText(QCoreApplication.translate("MainWindow", u"Led 1", None))
         self.led3_button.setText(QCoreApplication.translate("MainWindow", u"Led 3", None))
         self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"Connections", None))
-        self.camerastart_button.setText(QCoreApplication.translate("MainWindow", u"Start Camera Feed", None))
         self.camerastop_button.setText(QCoreApplication.translate("MainWindow", u"Stop Camera Feed", None))
+        self.camerastart_button_face.setText(QCoreApplication.translate("MainWindow", u"Start Camera Feed - Face Detection", None))
+        self.camerastart_button_object.setText(QCoreApplication.translate("MainWindow", u"Start Camera Feed - Object Detection", None))
         self.datastart_button.setText(QCoreApplication.translate("MainWindow", u"Start Data Reading", None))
         self.datastop_button.setText(QCoreApplication.translate("MainWindow", u"Stop Data Reading", None))
         self.detection_label.setText("")
@@ -419,6 +460,7 @@ class Camera_Worker(QThread):
     ImageUpdate = Signal(QImage) # -> the tutorial I watched used pyqtSignal but I guess its changed
     FacesDetected = Signal(int) # -> yüz tespiti sinyali, detection_label'ı güncellemek için kullanılacak
     
+    # OPENCV ile Yüz Tespiti
     def run(self):
         self.ThreadActive = True
         Capture = cv2.VideoCapture(0)
@@ -435,7 +477,7 @@ class Camera_Worker(QThread):
                     # Çizilen dikdörtgenin merkezini hesaplama
                     center_x = x + w // 2
                     center_y = y + h // 2
-                    # Bulunan merkezi bounfing boxun üstüne yazdırma
+                    # Bulunan merkezi bounding boxun üstüne yazdırma
                     cv2.putText(frame, f"({center_x}, {center_y})", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
                 RGBImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 # FlippedImage = cv2.flip(RGBImage, 1)
@@ -446,12 +488,62 @@ class Camera_Worker(QThread):
                 
                 pic = ConvertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
                 self.ImageUpdate.emit(pic)
-    
+                
     def stop(self):
         self.ThreadActive = False
         self.quit()
         self.wait()
 
+class Camera_Object_Worker(QThread):
+    ImageUpdate = Signal(QImage)
+    ObjectsDetected = Signal(int)
+    
+    # Kendi Eğittiğim YOLO modeli ile Obje Tespiti
+    def run(self):
+        self.ThreadActive = True
+        Capture = cv2.VideoCapture(0)
+        
+        model_path = 'C:/Users/shade/OneDrive/Masaüstü/software docs/mpu6050_pyqt/version_two/best.pt'  # Update this path to your best.pt
+        if not os.path.exists(model_path):
+            print(f"Model file not found at {model_path}")
+            return
+
+        # -> YOLO modelini yükleme
+        model = YOLO(model_path)
+
+        while self.ThreadActive:
+            ret, frame = Capture.read()
+            if ret:
+                # -> YOLO modelini kullanarak obje tespiti
+                results = model(frame)
+                
+                detected_objects = 0
+                # -> YOLO modelinden gelen sonuçları işleme
+                for result in results:
+                    
+                    for box in result.boxes:
+                        if int(box.cls[0]) == 0:  # -> Assuming class 0 is for object
+                            detected_objects += 1
+                            x1, y1, x2, y2 = map(int, box.xyxy[0])  # -> Bounding box kooridinatlarını al
+                            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # -> Bounding box çiz
+                            # -> Bounding box'un merkezini hesapla
+                            center_x = (x1 + x2) // 2
+                            center_y = (y1 + y2) // 2
+                            # -> Bulunan merkezi bounding boxun üstüne yazdırma
+                            cv2.putText(frame, f"({center_x}, {center_y})", (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
+                self.ObjectsDetected.emit(detected_objects)  # -> Obje tespiti sinyali
+                
+                RGBImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                ConvertToQtFormat = QImage(RGBImage.data, RGBImage.shape[1], RGBImage.shape[0], QImage.Format_RGB888)
+                
+                pic = ConvertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
+                self.ImageUpdate.emit(pic)
+                
+    def stop(self):
+        self.ThreadActive = False
+        self.quit()
+        self.wait()
 
 def main():
     app = QApplication(sys.argv)
