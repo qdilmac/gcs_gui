@@ -355,19 +355,19 @@ class Ui_MainWindow(object):
     def start_camera(self):
         self.CameraThread.start()
         self.camerastart_button.setStyleSheet("background-color: green;")
-        self.camerastop_button.setStyleSheet("background-color: grey;")
+        self.camerastop_button.setStyleSheet("background-color: #343944;") # -> ana pencerenin renk hex kodu
         self.CameraThread.FacesDetected.connect(self.update_detection_label)
 
     def stop_camera(self):
-        self.camerastart_button.setStyleSheet("background-color: grey;")
+        self.camerastart_button.setStyleSheet("background-color: #343944;")
         self.camerastop_button.setStyleSheet("background-color: red;")
-        self.CameraThread.stop()
-        self.CameraThread.wait() # -> thread'in bitmesini bekliyoruz -> aşağıdaki sorunu bu da çözmedi :d
-        self.CameraThread.FacesDetected.disconnect(self.update_detection_label)
-        self.detection_label.setText("IDLE")  # detection_label'ı temizleyin    
+        self.detection_label.setText("IDLE")  # detection_label'ı değiştir
         self.detection_label.setStyleSheet("background-color: orange;")
         self.videofeed_label.clear() # -> videofeed_label temizlemesi gerek ama temizledikten sonra geriye bir frame daha geliyor. Tekrar butona basılması gerekiyor.
-    
+        self.CameraThread.stop()
+        self.CameraThread.wait() # -> thread'in bitmesini bekliyoruz -> çift tıklama sorununu bu da çözmedi :d
+        self.CameraThread.FacesDetected.disconnect(self.update_detection_label)
+   
     @Slot (int) # -> yüz tespiti sinyali veri tipini belirtiyoruz, çift dikiş daha sağlam olsun diye
     def update_detection_label(self, detected_faces: int):
         if detected_faces >= 1:
