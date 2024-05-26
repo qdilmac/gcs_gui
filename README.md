@@ -1,7 +1,7 @@
 # Monitoring Sensor Data / Camera Feed GUI with Pyside
 
 ## Description
-Main reason of this project is to learn by doing aka "Project Based Learning". This is a graphical user interface (GUI) designed for monitoring camera and sensor data. Developed using PySide6 for the GUI elements, it integrates with camera feeds for face and object detection and displays sensor data from various sensors. The GUI provides a user-friendly interface for starting and stopping camera feeds, controlling LEDs, and viewing real-time sensor data. Project includes different versions that shows my progress about the topic(s).
+Main reason of this project is to learn by doing aka "Project Based Learning". This is a graphical user interface (GUI) designed for monitoring camera and sensor data. Developed using PySide6 for the GUI elements, it integrates with camera feeds for face and object detection and displays sensor data from MPU6050 (more sensors can be added ofc). The GUI provides a user-friendly interface for starting and stopping camera feeds, controlling LEDs, and viewing real-time sensor data. Project includes different versions that shows my progress about the topic(s).
 
 I first wrote this project to create a simple Pyside GUI and read data from an MPU6050 sensor connected to an ESP32 microcontroller. The sensor data (accelerometer and gyroscope readings) are displayed on the GUI's designated LCD displays. This was a small "unknown" for me but I'm happy that I solved the problem. It took some time but I managed it in couple hours. If this helps you out in any way, feel free to use it!
 
