@@ -1,8 +1,9 @@
-# Monitoring Sensor Data GUI with Pyside
+# Monitoring Sensor Data / Camera Feed GUI with Pyside
 
 ## Description
-I wrote this project to create a simple Pyside GUI and read data from an MPU6050 sensor connected to an ESP32 microcontroller. The sensor data (accelerometer and gyroscope readings) are displayed on the GUI's designated LCD displays.
-This was a small "unknown" for me but I'm happy that I solved the problem. It took some time but I managed it in couple hours. If this helps you out in any way, feel free to use it!
+Main reason of this project is to learn by doing aka "Project Based Learning". This is a graphical user interface (GUI) designed for monitoring camera and sensor data. Developed using PySide6 for the GUI elements, it integrates with camera feeds for face and object detection and displays sensor data from various sensors. The GUI provides a user-friendly interface for starting and stopping camera feeds, controlling LEDs, and viewing real-time sensor data. Project includes different versions that shows my progress about the topic(s).
+
+I first wrote this project to create a simple Pyside GUI and read data from an MPU6050 sensor connected to an ESP32 microcontroller. The sensor data (accelerometer and gyroscope readings) are displayed on the GUI's designated LCD displays. This was a small "unknown" for me but I'm happy that I solved the problem. It took some time but I managed it in couple hours. If this helps you out in any way, feel free to use it!
 
 Update 26/05 -> The project took a different route that I have expected but I'm not complaining. The GCS concept is one of the main parts of my robotics (UGV, UAV, Robotic Arm etc.) projects. So every second that i spent on this is worth the time!
 
@@ -16,6 +17,8 @@ Update 26/05 -> The project took a different route that I have expected but I'm 
 20/05/2024 -> Added face detection.
 
 26/05/2024 -> Organized the repo into folders for different versions. Started working on second version.
+
+27/05/2024 -> Trained my first custom YOLOv8 object detection model with my own dataset to implement it to the GUI. Added another thread to seperate face and object detection.
 
 ## TO-DO
 Test or implement communication over a network. Eliminate the need for wired serial connection. -> <b>WIP</b>
