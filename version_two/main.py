@@ -400,7 +400,7 @@ class Ui_MainWindow(object):
         self.CameraObjectThread.ObjectsDetected.disconnect(self.update_detection_label_object) # -> obje tespiti sinyalini disconnect et 
         self.CameraObjectThread.stop()
         self.CameraObjectThread.wait()
-   
+    
     @Slot (int) # -> yüz tespiti sinyali veri tipini belirtiyoruz, çift dikiş daha sağlam olsun diye
     def update_detection_label_face(self, detected_faces: int):
         if detected_faces >= 1:
@@ -524,18 +524,31 @@ class Camera_Object_Worker(QThread):
                 for result in results:
                     labels = model.names  # -> YOLO modelinden gelen label'ları al
                     for box in result.boxes:
-                        if int(box.cls[0]) == 0:  # -> Assuming class 0 is for object
+                        if int(box.cls[0]) == 0:  # -> eğittiğim modelde yalnızca bir adet label var o yüzden problem yok
                             detected_objects += 1
                             x1, y1, x2, y2 = map(int, box.xyxy[0])  # -> Bounding box kooridinatlarını al
                             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # -> Bounding box çiz
                             
-                            # Get the class label and confidence
+                            # -> Tespit edilen objenin label'ını ve güvenilirlik oranını al
                             class_id = int(box.cls[0])
                             label = labels[class_id]
                             confidence = box.conf[0]
 
                             # -> YOLO model Label'ı bounding boxun üstüne yazdır
                             cv2.putText(frame, f"{label}: {confidence:.2f}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+
+                            # -> Bounding boxun merkezini hesapla ve nokta çiz
+                            center_x = (x1 + x2) // 2
+                            center_y = (y1 + y2) // 2
+                            cv2.circle(frame, (center_x, center_y), 3, (0, 0, 255), -1)
+
+                            # -> Tespit ettiğimiz objenin bir önceki ve şu anki merkezi arasında çizgi çiz
+                            if hasattr(self, 'prev_center_x') and hasattr(self, 'prev_center_y'):
+                                cv2.line(frame, (self.prev_center_x, self.prev_center_y), (center_x, center_y), (0, 0, 255), 2)
+                            
+                            # -> Merkezi güncelle
+                            self.prev_center_x = center_x
+                            self.prev_center_y = center_y
 
                 self.ObjectsDetected.emit(detected_objects)  # -> Obje tespiti sinyali
                 
