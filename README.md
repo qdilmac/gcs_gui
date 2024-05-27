@@ -20,6 +20,8 @@ Update 26/05 -> The project took a different route that I have expected but I'm 
 
 27/05/2024 -> Trained my first custom YOLOv8 object detection model with my own dataset to implement it to the GUI. Added another thread to seperate face and object detection.
 
+27/05/2024 22:56 -> Trained another model with Turkish 1 lira coin. Training went well but it does not work good in poor light. And accidentally named the coin class wrong as a "thermos". Forgot to change it from the model before :D
+
 ## TO-DO
 Test or implement communication over a network. Eliminate the need for wired serial connection. -> <b>WIP</b>
 
