@@ -358,7 +358,6 @@ class Ui_MainWindow(object):
         self.CameraThread.ImageUpdate.connect(self.ImageUpdateSlot) # -> camera thread içerisindeki ImageUpdate sinyali ImageUpdateSlot fonksiyonuna bağlanıyor
         self.CameraThread.FacesDetected.connect(self.update_detection_label_face) # -> yüz tespiti sinyali detection_label'ı güncellemek için kullanılacak
         self.camerastart_button_face.clicked.connect(self.start_camera_face) # -> yüz tespiti için kamera başlatma butonuna bağlanıyor
-        self.camerastop_button.clicked.connect(self.stop_camera, Qt.QueuedConnection) # -> stop_camera fonksiyonu thread içerisinde çalıştığı için queued connection kullanıyoruz
         #queued connection ile thread içerisinde çalışan fonksiyonun bitmesini bekliyoruz. Bu detecion_label'ı güncellemede işe yaradı ama hala videofeed_label'da bir frame daha geliyor.
 
         self.CameraObjectThread = Camera_Object_Worker() # -> obje tespiti için camera thread oluşturuluyor
@@ -366,6 +365,8 @@ class Ui_MainWindow(object):
         self.CameraObjectThread.ObjectsDetected.connect(self.update_detection_label_object) # -> obje tespiti sinyali detection_label'ı güncellemek için kullanılacak
         self.camerastart_button_object.clicked.connect(self.start_camera_object) # -> obje tespiti için kamera başlatma butonuna bağlanıyor
         
+        self.camerastop_button.clicked.connect(self.stop_camera, Qt.QueuedConnection) # -> stop_camera fonksiyonu thread içerisinde çalıştığı için queued connection kullanıyoruz
+    
     def start_camera_face(self):
         self.CameraObjectThread.stop() # -> obje tespiti thread'ini durdur
         # time.sleep(1) # -> thread'in bitmesini beklemek için 1 saniye bekle
@@ -382,7 +383,7 @@ class Ui_MainWindow(object):
         self.camerastart_button_object.setStyleSheet("background-color: green;")
         self.camerastart_button_face.setStyleSheet("background-color: #343944;")
         self.camerastop_button.setStyleSheet("background-color: #343944;")
-        self.CameraThread.FacesDetected.connect(self.update_detection_label_object)
+        self.CameraObjectThread.ObjectsDetected.connect(self.update_detection_label_object)
 
     def stop_camera(self):
         self.camerastart_button_face.setStyleSheet("background-color: #343944;")
@@ -392,13 +393,13 @@ class Ui_MainWindow(object):
         self.detection_label.setStyleSheet("background-color: orange;")
         self.videofeed_label.clear() # -> videofeed_label temizlemesi gerek ama temizledikten sonra geriye bir frame daha geliyor. Tekrar butona basılması gerekiyor.
        
+        self.CameraThread.FacesDetected.disconnect(self.update_detection_label_face) # -> yüz tespiti sinyalini disconnect et
         self.CameraThread.stop()
         self.CameraThread.wait() # -> thread'in bitmesini bekliyoruz -> çift tıklama sorununu bu da çözmedi :d
-        self.CameraThread.FacesDetected.disconnect(self.update_detection_label_face) # -> yüz tespiti sinyalini disconnect et
        
+        self.CameraObjectThread.ObjectsDetected.disconnect(self.update_detection_label_object) # -> obje tespiti sinyalini disconnect et 
         self.CameraObjectThread.stop()
         self.CameraObjectThread.wait()
-        self.CameraObjectThread.ObjectsDetected.disconnect(self.update_detection_label_object) # -> obje tespiti sinyalini disconnect et 
    
     @Slot (int) # -> yüz tespiti sinyali veri tipini belirtiyoruz, çift dikiş daha sağlam olsun diye
     def update_detection_label_face(self, detected_faces: int):
@@ -408,7 +409,8 @@ class Ui_MainWindow(object):
         else:
             self.detection_label.setText("Yüz Tespiti Yapılamadı!")
             self.detection_label.setStyleSheet("background-color: red;")
-            
+    
+    @Slot (int)
     def update_detection_label_object(self, detected_objects):
         if detected_objects >= 1:
             self.detection_label.setText(f"{detected_objects} adet Obje Tespit Edildi")
@@ -503,7 +505,7 @@ class Camera_Object_Worker(QThread):
         self.ThreadActive = True
         Capture = cv2.VideoCapture(0)
         
-        model_path = 'C:/Users/shade/OneDrive/Masaüstü/software docs/mpu6050_pyqt/version_two/best.pt'  # Update this path to your best.pt
+        model_path = 'C:/Users/shade/OneDrive/Masaüstü/software docs/mpu6050_pyqt/version_two/best.pt'  # Update this path to your weight file
         if not os.path.exists(model_path):
             print(f"Model file not found at {model_path}")
             return

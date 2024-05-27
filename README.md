@@ -38,6 +38,8 @@ To use camera feed without 1 second pauses I need to find efficient way to read 
 
 I have to click twice to the "Stop Camera Feed" button to clear videofeed_label and update "detection_label" -> <b>UNSOLVED</b>
 
+When I start object detection after stopping the camera feed the detection_label does not update. Same problem does not happen when i start face detection. -> <b>SOLVED</b>
+
 ## Requirements
 - Python 3
 - PyQT / Pyside
