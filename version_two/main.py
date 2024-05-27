@@ -505,7 +505,7 @@ class Camera_Object_Worker(QThread):
         self.ThreadActive = True
         Capture = cv2.VideoCapture(0)
         
-        model_path = 'C:/Users/shade/OneDrive/Masaüstü/software docs/mpu6050_pyqt/version_two/best.pt'  # Update this path to your weight file
+        model_path = 'C:/Users/shade/OneDrive/Masaüstü/software docs/mpu6050_pyqt/version_two/turkish_coin_wrong_classnamexd.pt'  # Update this path to your weight file
         if not os.path.exists(model_path):
             print(f"Model file not found at {model_path}")
             return
