@@ -31,7 +31,7 @@ Add face detection to test processed image monitoring -> <b>DONE</b>
 
 Train a YOLO model and implement it. Add it as a different thread so when camera starts I can both track face or trained object. -> <b>DONE, This was so useful and educational!</b>
 
-Add angle estimation using Kalman filtering. -> <b>WIP</b>
+Add angle estimation using Kalman filtering. -> <b>Added angle est., Kalman WIP </b>
 
 Update GUI for v2-> <b>DONE</b>
 
