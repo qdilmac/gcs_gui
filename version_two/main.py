@@ -366,7 +366,31 @@ class Ui_MainWindow(object):
         self.camerastart_button_object.clicked.connect(self.start_camera_object) # -> obje tespiti için kamera başlatma butonuna bağlanıyor
         
         self.camerastop_button.clicked.connect(self.stop_camera, Qt.QueuedConnection) # -> stop_camera fonksiyonu thread içerisinde çalıştığı için queued connection kullanıyoruz
+
+        self.DataThread = Data_Worker() # -> data thread oluşturuluyor
+        self.DataThread.DataUpdate.connect(self.DataUpdateSlot) # -> data thread içerisindeki DataUpdate sinyali DataUpdateSlot fonksiyonuna bağlanıyor
+        self.datastart_button.clicked.connect(self.start_data) # -> data okuma başlatma butonuna bağlanıyor
+        self.datastop_button.clicked.connect(self.stop_data) # -> data okuma durdurma butonuna bağlanıyor
+        
+    def start_data(self):
+        self.DataThread.start()
+        self.datastart_button.setStyleSheet("background-color: green;")
+        self.datastop_button.setStyleSheet("background-color: #343944;")
     
+    def stop_data(self):
+        self.datastart_button.setStyleSheet("background-color: #343944;")
+        self.datastop_button.setStyleSheet("background-color: red;")
+        self.accelx_label.setText("")
+        self.accely_label.setText("")
+        self.accelz_label.setText("")
+        self.gyrox_label.setText("")
+        self.gyroy_label.setText("")
+        self.gyroz_label.setText("")
+        self.rollangle_label.setText("")
+        self.pitchangle_label.setText("")
+        self.DataThread.stop()
+        self.DataThread.wait()
+        
     def start_camera_face(self):
         self.CameraObjectThread.stop() # -> obje tespiti thread'ini durdur
         # time.sleep(1) # -> thread'in bitmesini beklemek için 1 saniye bekle
@@ -423,6 +447,16 @@ class Ui_MainWindow(object):
     def ImageUpdateSlot(self, image): # -> ImageUpdate sinyali ile gelen resmi VideoFeedLabel'a set ediyor
         self.videofeed_label.setPixmap(QPixmap.fromImage(image)) 
     # setupUi
+    
+    def DataUpdateSlot(self, data):
+        self.accelx_label.setText(str(data[0]))
+        self.accely_label.setText(str(data[1]))
+        self.accelz_label.setText(str(data[2]))
+        self.gyrox_label.setText(str(data[3]))
+        self.gyroy_label.setText(str(data[4]))
+        self.gyroz_label.setText(str(data[5]))
+        # self.rollangle_label.setText(data[6])  # -> Henüz eklemedim
+        # self.pitchangle_label.setText(data[7])
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Data Monitoring GUI v0.2", None))
@@ -456,6 +490,30 @@ class Ui_MainWindow(object):
         self.datastop_button.setText(QCoreApplication.translate("MainWindow", u"Stop Data Reading", None))
         self.detection_label.setText("")
     # retranslateUi
+
+# mikrokontrolcü seri port bağlantısı -> kamera testi yaparken yorum satırı yap aşağıdaki ikisini
+esp32 = serial.Serial("COM6", 115200)
+print("Bağlı olan COM: " + esp32.name)
+
+class Data_Worker(QThread):
+    DataUpdate = Signal(list) # -> DataUpdate sinyali işlenmiş veriyi DataUpdateSlot fonksiyonuna gönderiyor
+    
+    def readData(self):
+        time.sleep(0.1)
+        read_data = esp32.readline().decode().split('\n')
+        read_data = read_data[0].split(' ')
+        print("DATA son hâli: " , read_data)
+        return read_data
+    
+    def run(self):
+        self.ThreadActive = True
+        while self.ThreadActive:
+            data = Data_Worker.readData(self)
+            self.DataUpdate.emit(data) # -> DataUpdate sinyali işlenmiş veriyi DataUpdateSlot fonksiyonuna gönderiyor (emit ediyor)
+            
+    def stop(self):
+        self.ThreadActive = False
+        self.quit()
 
 # Camera Thread
 class Camera_Worker(QThread):
@@ -505,7 +563,7 @@ class Camera_Object_Worker(QThread):
         self.ThreadActive = True
         Capture = cv2.VideoCapture(0)
         
-        model_path = 'C:/Users/shade/OneDrive/Masaüstü/software docs/mpu6050_pyqt/version_two/turkish_coin_wrong_classnamexd.pt'  # Update this path to your weight file
+        model_path = 'C:/Users/shade/OneDrive/Masaüstü/software docs/mpu6050_pyqt/version_two/teabag_blueberry.pt'  # Update this path to your weight file
         if not os.path.exists(model_path):
             print(f"Model file not found at {model_path}")
             return
