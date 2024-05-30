@@ -71,16 +71,14 @@ void loop() {
   Serial.print(" ");
   Serial.print(g.gyro.z);
   Serial.print(" ");
-  // önce pitch verisini gönderiyorum. Bunun tek sebebi mpu6050'nin breadboard üzerinde takılış şekli. 
   // mpu6050 sensörünün eksenel yönlerine göre veriyi gönderiyorum
-  // sensör üzerinde x,y,z olarak göstermiş, GUI'nın veri de ona göre okuması için sıralama bu şekilde
-  Serial.print(pitch);  
+  Serial.print(roll);  
   Serial.print(" ");
-  Serial.print(roll);
+  Serial.print(pitch);
   Serial.print(" ");
-  Serial.print(yaw);  
+  Serial.print(yaw);
   Serial.println();
-  delay(1000);
+  delay(300);
 
   // LED kontrol serial port üzerinden
   if (Serial.available() > 0) {
