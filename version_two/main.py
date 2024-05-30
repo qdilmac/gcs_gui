@@ -374,10 +374,15 @@ class Ui_MainWindow(object):
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        
+        self.led1_button.setCheckable(True)
+        self.led1_button.clicked.connect(self.on_led1_button_clicked) # -> led1 butonuna bağlanıyor
+        self.led2_button.setCheckable(True)
+        self.led2_button.clicked.connect(self.on_led2_button_clicked) # -> led2 butonuna bağlanıyor
+        self.led3_button.setCheckable(True)
+        self.led3_button.clicked.connect(self.on_led3_button_clicked) # -> led3 butonuna bağlanıyor
 
-        self.retranslateUi(MainWindow)
-
-        QMetaObject.connectSlotsByName(MainWindow)
+       
         
         self.CameraThread = Camera_Worker() # -> camera thread oluşturuluyor
         self.CameraThread.ImageUpdate.connect(self.ImageUpdateSlot) # -> camera thread içerisindeki ImageUpdate sinyali ImageUpdateSlot fonksiyonuna bağlanıyor
@@ -397,6 +402,46 @@ class Ui_MainWindow(object):
         self.datastart_button.clicked.connect(self.start_data) # -> data okuma başlatma butonuna bağlanıyor
         self.datastop_button.clicked.connect(self.stop_data) # -> data okuma durdurma butonuna bağlanıyor
         
+        self.retranslateUi(MainWindow)
+
+        QMetaObject.connectSlotsByName(MainWindow)
+        
+    # -> seçili led butonları üzerinden seri bağlantı ile ledleri yakma fonksiyonu
+    # -> led butonlarının durumları kontrol ediliyor. ona göre seri port üzerinden veri gönderiliyor.
+    # -> gönderilen veriye göre mikrokontrolcüdeki kodlar çalışıyor. -> gcs_gui_v2.ino
+    def on_led1_button_clicked(self):
+        led1_state = self.led1_button.isChecked()
+        if led1_state:
+            esp32.write(b'1')
+            self.led1_button.setStyleSheet("background-color: green;")
+            print("Led 1 açıldı")
+        else:
+            esp32.write(b'2')
+            self.led1_button.setStyleSheet("background-color: #343944;")
+            print("Led 1 kapatıldı")
+            
+    def on_led2_button_clicked(self):
+        led2_state = self.led2_button.isChecked()
+        if led2_state:
+            esp32.write(b'3')
+            self.led2_button.setStyleSheet("background-color: green;")
+            print("Led 2 açıldı")
+        else:
+            esp32.write(b'4')
+            self.led2_button.setStyleSheet("background-color: #343944;")
+            print("Led 2 kapatıldı")
+    
+    def on_led3_button_clicked(self):
+        led3_state = self.led3_button.isChecked()
+        if led3_state:
+            esp32.write(b'5')
+            self.led3_button.setStyleSheet("background-color: green;")
+            print("Led 3 açıldı")
+        else:
+            esp32.write(b'6')
+            self.led3_button.setStyleSheet("background-color: #343944;")
+            print("Led 3 kapatıldı")      
+          
     def start_data(self):
         self.DataThread.start()
         self.datastart_button.setStyleSheet("background-color: green;")
@@ -413,6 +458,7 @@ class Ui_MainWindow(object):
         self.gyroz_label.setText("")
         self.rollangle_label.setText("")
         self.pitchangle_label.setText("")
+        self.yaw_angle.setText("")
         self.DataThread.stop()
         self.DataThread.wait()
         
@@ -449,7 +495,7 @@ class Ui_MainWindow(object):
         self.CameraObjectThread.ObjectsDetected.disconnect(self.update_detection_label_object) # -> obje tespiti sinyalini disconnect et 
         self.CameraObjectThread.stop()
         self.CameraObjectThread.wait()
-    
+
     @Slot (int) # -> yüz tespiti sinyali veri tipini belirtiyoruz, çift dikiş daha sağlam olsun diye
     def update_detection_label_face(self, detected_faces: int):
         if detected_faces >= 1:
@@ -518,11 +564,13 @@ class Ui_MainWindow(object):
         self.datastop_button.setText(QCoreApplication.translate("MainWindow", u"Stop Data Reading", None))
         self.detection_label.setText("")
     # retranslateUi
+   
 
 # mikrokontrolcü seri port bağlantısı -> kamera testi yaparken yorum satırı yap aşağıdaki ikisini
 esp32 = serial.Serial("COM6", 115200)
 print("Bağlı olan COM: " + esp32.name)
-
+        
+# -> esp32 üzerinden gelen veriyi okuyan thread
 class Data_Worker(QThread):
     DataUpdate = Signal(list) # -> DataUpdate sinyali işlenmiş veriyi DataUpdateSlot fonksiyonuna gönderiyor
     
