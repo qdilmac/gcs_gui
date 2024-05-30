@@ -54,7 +54,7 @@
       <x>690</x>
       <y>30</y>
       <width>321</width>
-      <height>321</height>
+      <height>351</height>
      </rect>
     </property>
     <property name="font">
@@ -71,38 +71,12 @@
        <x>10</x>
        <y>30</y>
        <width>301</width>
-       <height>281</height>
+       <height>311</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="3" column="0">
-       <widget class="QLabel" name="label_4">
-        <property name="font">
-         <font>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>AccelY</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="0">
-       <widget class="Line" name="line_5">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0">
-       <widget class="Line" name="line_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="12" column="0">
-       <widget class="Line" name="line_7">
+      <item row="14" column="1">
+       <widget class="Line" name="line_9">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -110,72 +84,6 @@
       </item>
       <item row="7" column="1">
        <widget class="QLabel" name="gyrox_label">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="1">
-       <widget class="QLabel" name="rollangle_label">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="Line" name="line_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QLabel" name="accelz_label">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="0">
-       <widget class="QLabel" name="label_3">
-        <property name="font">
-         <font>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Roll Angle</string>
-        </property>
-       </widget>
-      </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="label_10">
-        <property name="font">
-         <font>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>GyroY</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="accelx_label">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="1">
-       <widget class="QLabel" name="gyroz_label">
         <property name="text">
          <string/>
         </property>
@@ -193,10 +101,43 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QLabel" name="accely_label">
+      <item row="4" column="1">
+       <widget class="Line" name="line_14">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="accelx_label">
         <property name="text">
          <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="Line" name="line_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="font">
+         <font>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>GyroY</string>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="0">
+       <widget class="Line" name="line_8">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
@@ -209,56 +150,6 @@
         </property>
         <property name="text">
          <string>AccelX</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="0">
-       <widget class="Line" name="line_6">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="font">
-         <font>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>AccelZ</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="0">
-       <widget class="QLabel" name="label_12">
-        <property name="font">
-         <font>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>GyroZ</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="Line" name="line_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0">
-       <widget class="QLabel" name="label_7">
-        <property name="font">
-         <font>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>GyroX</string>
         </property>
        </widget>
       </item>
@@ -276,22 +167,112 @@
         </property>
        </widget>
       </item>
-      <item row="14" column="0">
-       <widget class="Line" name="line_8">
+      <item row="17" column="1">
+       <widget class="QLabel" name="yaw_angle">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="Line" name="line_12">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item row="14" column="1">
-       <widget class="Line" name="line_9">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+      <item row="3" column="1">
+       <widget class="QLabel" name="accely_label">
+        <property name="text">
+         <string/>
         </property>
        </widget>
       </item>
       <item row="12" column="1">
        <widget class="Line" name="line_10">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="font">
+         <font>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>AccelY</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="0">
+       <widget class="QLabel" name="label_12">
+        <property name="font">
+         <font>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>GyroZ</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="Line" name="line_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="0">
+       <widget class="Line" name="line_7">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="font">
+         <font>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>AccelZ</string>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="1">
+       <widget class="QLabel" name="rollangle_label">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Roll Angle</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="Line" name="line_13">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -304,22 +285,74 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="1">
-       <widget class="Line" name="line_12">
+      <item row="8" column="0">
+       <widget class="Line" name="line_5">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
-       <widget class="Line" name="line_13">
+      <item row="2" column="0">
+       <widget class="Line" name="line">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="Line" name="line_14">
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="font">
+         <font>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>GyroX</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QLabel" name="accelz_label">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="1">
+       <widget class="QLabel" name="gyroz_label">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="17" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="font">
+         <font>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Yaw Angle</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="0">
+       <widget class="Line" name="line_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="16" column="0">
+       <widget class="Line" name="line_17">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="16" column="1">
+       <widget class="Line" name="line_18">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -332,7 +365,7 @@
     <property name="geometry">
      <rect>
       <x>690</x>
-      <y>360</y>
+      <y>400</y>
       <width>321</width>
       <height>161</height>
      </rect>
