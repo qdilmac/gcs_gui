@@ -323,7 +323,6 @@ class Ui_MainWindow(object):
 
         self.gridLayout_6.addWidget(self.camerastart_button_object, 1, 0, 1, 1)
 
-
         self.gridLayout_4.addLayout(self.gridLayout_6, 0, 3, 1, 1)
 
         self.line_15 = QFrame(self.gridLayoutWidget_3)
@@ -370,20 +369,19 @@ class Ui_MainWindow(object):
         self.detection_label.setMidLineWidth(2)
         self.detection_label.setAlignment(Qt.AlignCenter)
         self.detection_label.setWordWrap(False)
+        self.detection_label.setStyleSheet("background-color: orange;")
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
         MainWindow.setStatusBar(self.statusbar)
         
-        self.led1_button.setCheckable(True)
+        self.led1_button.setCheckable(True) # -> butonlar "checkable" olmalı ki durumlarını kontrol edebilelim
         self.led1_button.clicked.connect(self.on_led1_button_clicked) # -> led1 butonuna bağlanıyor
         self.led2_button.setCheckable(True)
         self.led2_button.clicked.connect(self.on_led2_button_clicked) # -> led2 butonuna bağlanıyor
         self.led3_button.setCheckable(True)
         self.led3_button.clicked.connect(self.on_led3_button_clicked) # -> led3 butonuna bağlanıyor
 
-       
-        
         self.CameraThread = Camera_Worker() # -> camera thread oluşturuluyor
         self.CameraThread.ImageUpdate.connect(self.ImageUpdateSlot) # -> camera thread içerisindeki ImageUpdate sinyali ImageUpdateSlot fonksiyonuna bağlanıyor
         self.CameraThread.FacesDetected.connect(self.update_detection_label_face) # -> yüz tespiti sinyali detection_label'ı güncellemek için kullanılacak
@@ -410,9 +408,9 @@ class Ui_MainWindow(object):
     # -> led butonlarının durumları kontrol ediliyor. ona göre seri port üzerinden veri gönderiliyor.
     # -> gönderilen veriye göre mikrokontrolcüdeki kodlar çalışıyor. -> gcs_gui_v2.ino
     def on_led1_button_clicked(self):
-        led1_state = self.led1_button.isChecked()
+        led1_state = self.led1_button.isChecked() # -> checkable yapmamızın nedeni burada
         if led1_state:
-            esp32.write(b'1')
+            esp32.write(b'1') # -> buradaki b byte anlamına geliyor
             self.led1_button.setStyleSheet("background-color: green;")
             print("Led 1 açıldı")
         else:
@@ -562,10 +560,9 @@ class Ui_MainWindow(object):
         self.camerastart_button_object.setText(QCoreApplication.translate("MainWindow", u"Start Camera Feed - Object Detection", None))
         self.datastart_button.setText(QCoreApplication.translate("MainWindow", u"Start Data Reading", None))
         self.datastop_button.setText(QCoreApplication.translate("MainWindow", u"Stop Data Reading", None))
-        self.detection_label.setText("")
+        self.detection_label.setText("IDLE")
     # retranslateUi
    
-
 # mikrokontrolcü seri port bağlantısı -> kamera testi yaparken yorum satırı yap aşağıdaki ikisini
 esp32 = serial.Serial("COM6", 115200)
 print("Bağlı olan COM: " + esp32.name)
@@ -576,9 +573,9 @@ class Data_Worker(QThread):
     
     def readData(self):
         time.sleep(0.1)
-        read_data = esp32.readline().decode().split('\n')
+        read_data = esp32.readline().decode().split('\n') # -> fonksiyon açıklamaları: readline() -> seri port üzerinden gelen veriyi okur, decode() -> byte veriyi stringe çevirir, split('\n') -> satır sonu karakterine göre veriyi ayırır
         read_data = read_data[0].split(' ')
-        print("DATA son hâli: " , read_data)
+        # print("DATA son hâli: " , read_data)
         return read_data
     
     def run(self):
@@ -660,7 +657,7 @@ class Camera_Object_Worker(QThread):
                     for box in result.boxes:
                         if int(box.cls[0]) == 0:  # -> eğittiğim modelde yalnızca bir adet label var o yüzden problem yok
                             detected_objects += 1
-                            x1, y1, x2, y2 = map(int, box.xyxy[0])  # -> Bounding box kooridinatlarını al
+                            x1, y1, x2, y2 = map(int, box.xyxy[0])  # -> Bounding box koordinatlarını al
                             cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)  # -> Bounding box çiz
                             
                             # -> Tespit edilen objenin label'ını ve güvenilirlik oranını al
