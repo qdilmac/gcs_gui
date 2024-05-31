@@ -44,6 +44,9 @@ I have to click twice to the "Stop Camera Feed" button to clear videofeed_label 
 
 When I start object detection after stopping the camera feed the detection_label does not update. Same problem does not happen when i start face detection. -> <b>SOLVED</b>
 
+![image](https://github.com/qdilmac/gcs_gui/assets/64690728/3df430d1-d97c-473a-bb93-f60ecb704670) -> Sensor reading drift. Will be solved when KF implemented -> <b>UNSOLVED</b>
+
+
 ## Requirements
 - Python 3
 - PyQT / Pyside
