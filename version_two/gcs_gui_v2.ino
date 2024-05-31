@@ -10,11 +10,71 @@
 #define LED_two 26
 #define LED_three 27
 
+class KalmanFilter {
+  public:
+    KalmanFilter() {
+      Q_angle = 0.001;
+      Q_bias = 0.003;
+      R_measure = 0.03;
+
+      angle = 0.0;
+      bias = 0.0;
+
+      P[0][0] = 0.0;
+      P[0][1] = 0.0;
+      P[1][0] = 0.0;
+      P[1][1] = 0.0;
+    }
+
+    float getAngle(float newAngle, float newRate, float dt) {
+      rate = newRate - bias;
+      angle += dt * rate;
+
+      P[0][0] += dt * (dt*P[1][1] - P[0][1] - P[1][0] + Q_angle);
+      P[0][1] -= dt * P[1][1];
+      P[1][0] -= dt * P[1][1];
+      P[1][1] += Q_bias * dt;
+
+      float S = P[0][0] + R_measure;
+      float K[2];
+      K[0] = P[0][0] / S;
+      K[1] = P[1][0] / S;
+
+      float y = newAngle - angle;
+
+      angle += K[0] * y;
+      bias += K[1] * y;
+
+      float P00_temp = P[0][0];
+      float P01_temp = P[0][1];
+
+      P[0][0] -= K[0] * P00_temp;
+      P[0][1] -= K[0] * P01_temp;
+      P[1][0] -= K[1] * P00_temp;
+      P[1][1] -= K[1] * P01_temp;
+
+      return angle;
+    }
+
+  private:
+    float Q_angle;
+    float Q_bias;
+    float R_measure;
+    float angle;
+    float bias;
+    float rate;
+    float P[2][2];
+};
+
 Adafruit_MPU6050 mpu;
 
 // yaw verisi almak biraz sıkıntı ama olsun :d
 float yaw = 0.0;
 unsigned long lastUpdateTime = 0;
+
+KalmanFilter kalmanRoll;
+KalmanFilter kalmanPitch;
+KalmanFilter kalmanYaw;
 
 void setup() {
   Serial.begin(115200);
@@ -38,7 +98,7 @@ void setup() {
   mpu.setGyroRange(MPU6050_RANGE_250_DEG);
   mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
   Serial.println("");
-  delay(100);
+  delay(10);
 }
 
 void loop() {
@@ -58,6 +118,10 @@ void loop() {
   yaw += g.gyro.z * deltaTime;
   yaw = fmod(yaw, 360.0); // Veri sapması 360 dereceden büyük olmamalı -> Roll-Yaw-Pitch hesaplamalarına kalman filtresi eklenecek
 
+  float filteredRoll = kalmanRoll.getAngle(roll, g.gyro.x, deltaTime);
+  float filteredPitch = kalmanPitch.getAngle(pitch, g.gyro.y, deltaTime);
+  float filteredYaw = kalmanYaw.getAngle(yaw, g.gyro.z, deltaTime);
+
   /* Print out the values */
   Serial.print(a.acceleration.x);
   Serial.print(" ");
@@ -72,11 +136,11 @@ void loop() {
   Serial.print(g.gyro.z);
   Serial.print(" ");
   // mpu6050 sensörünün eksenel yönlerine göre veriyi gönderiyorum
-  Serial.print(roll);  
+  Serial.print(filteredRoll);  
   Serial.print(" ");
-  Serial.print(pitch);
+  Serial.print(filteredPitch);
   Serial.print(" ");
-  Serial.print(yaw);
+  Serial.print(filteredYaw);
   Serial.println();
   delay(300);
 
