@@ -40,7 +40,7 @@ To use camera feed without 1 second pauses I need to find efficient way to read 
 
 "TypeError: '>=' not supported between instances of 'PySide6.QtGui.QImage' and 'int'". Even tho the type of FaceDetection signal is integer, this error occurs. But program works well without any problem. -> <b>SOLVED, it appears in some places I wrote ImageUpdate signal instead of FaceDetection signal *facepalm* </b> 
 
-I have to click twice to the "Stop Camera Feed" button to clear videofeed_label and update "detection_label" -> <b>UNSOLVED</b>
+I have to click twice to the "Stop Camera Feed" button to clear videofeed_label and update "detection_label". Same happens on data reading. I think its something about threads not stopping immediately when I click the button. -> <b>UNSOLVED</b>
 
 When I start object detection after stopping the camera feed the detection_label does not update. Same problem does not happen when i start face detection. -> <b>SOLVED</b>
 
