@@ -346,7 +346,6 @@ class Ui_MainWindow(object):
 
         self.gridLayout_5.addWidget(self.datastop_button, 1, 0, 1, 1)
 
-
         self.gridLayout_4.addLayout(self.gridLayout_5, 0, 0, 1, 1)
 
         self.line_16 = QFrame(self.gridLayoutWidget_3)
@@ -484,15 +483,20 @@ class Ui_MainWindow(object):
         self.camerastop_button.setStyleSheet("background-color: red;")
         self.detection_label.setText("IDLE")  # detection_label'ı değiştir
         self.detection_label.setStyleSheet("background-color: orange;")
+        
+        # hangi thread çalışıyorsa onu durdur
+        if self.CameraThread.isRunning():
+            self.CameraThread.FacesDetected.disconnect(self.update_detection_label_face) # -> yüz tespiti sinyalini disconnect et
+            self.CameraThread.stop()
+            self.CameraThread.wait() # -> thread'in bitmesini bekliyoruz -> çift tıklama sorununu bu da çözmedi :d
+        
+        if self.CameraObjectThread.isRunning():
+            self.CameraObjectThread.ObjectsDetected.disconnect(self.update_detection_label_object) # -> obje tespiti sinyalini disconnect et 
+            self.CameraObjectThread.stop()
+            self.CameraObjectThread.wait()
+            
         self.videofeed_label.clear() # -> videofeed_label temizlemesi gerek ama temizledikten sonra geriye bir frame daha geliyor. Tekrar butona basılması gerekiyor.
-       
-        self.CameraThread.FacesDetected.disconnect(self.update_detection_label_face) # -> yüz tespiti sinyalini disconnect et
-        self.CameraThread.stop()
-        self.CameraThread.wait() # -> thread'in bitmesini bekliyoruz -> çift tıklama sorununu bu da çözmedi :d
-       
-        self.CameraObjectThread.ObjectsDetected.disconnect(self.update_detection_label_object) # -> obje tespiti sinyalini disconnect et 
-        self.CameraObjectThread.stop()
-        self.CameraObjectThread.wait()
+        self.videofeed_label.setText("Kamera Durduruldu")
 
     @Slot (int) # -> yüz tespiti sinyali veri tipini belirtiyoruz, çift dikiş daha sağlam olsun diye
     def update_detection_label_face(self, detected_faces: int):
@@ -515,7 +519,6 @@ class Ui_MainWindow(object):
     @Slot (QImage)
     def ImageUpdateSlot(self, image): # -> ImageUpdate sinyali ile gelen resmi VideoFeedLabel'a set ediyor
         self.videofeed_label.setPixmap(QPixmap.fromImage(image)) 
-    # setupUi
     
     def DataUpdateSlot(self, data):
         self.accelx_label.setText(str(data[0]))
@@ -574,7 +577,7 @@ class Data_Worker(QThread):
     def readData(self):
         time.sleep(0.1)
         read_data = esp32.readline().decode().split('\n') # -> fonksiyon açıklamaları: readline() -> seri port üzerinden gelen veriyi okur, decode() -> byte veriyi stringe çevirir, split('\n') -> satır sonu karakterine göre veriyi ayırır
-        read_data = read_data[0].split(' ')
+        read_data = read_data[0].split(' ') # -> split(' ') -> boşluk karakterine göre veriyi ayırıyoruz
         # print("DATA son hâli: " , read_data)
         return read_data
     
