@@ -26,6 +26,8 @@ Update 26/05 -> The project took a different route that I have expected but I'm 
 
 04/06/2024 -> Added network communication by sending data from microcontroller to the dedicated IP. Used JSON format to send data. Data writing (to control test LEDs) will be added. I'm so tired rn >>Finals Week<< :D
 
+04/06/2024 20:29 -> I wasnt able to leave the project to go study so I added LED control over network. Need some little changes tho :D
+
 ## TO-DO
 Test or implement communication over a network. Eliminate the need for wired serial connection. -> <b>DONE</b>
 
