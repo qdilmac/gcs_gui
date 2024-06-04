@@ -9,7 +9,7 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QGroupBox,
+from PySide6.QtWidgets import (QApplication, QFrame, QGridLayout, QComboBox, QGroupBox,
     QLabel, QMainWindow, QPushButton, QSizePolicy,
     QStatusBar, QWidget)
 import sys
@@ -323,6 +323,7 @@ class Ui_MainWindow(object):
 
         self.gridLayout_6.addWidget(self.camerastart_button_object, 1, 0, 1, 1)
 
+
         self.gridLayout_4.addLayout(self.gridLayout_6, 0, 3, 1, 1)
 
         self.line_15 = QFrame(self.gridLayoutWidget_3)
@@ -346,6 +347,7 @@ class Ui_MainWindow(object):
 
         self.gridLayout_5.addWidget(self.datastop_button, 1, 0, 1, 1)
 
+
         self.gridLayout_4.addLayout(self.gridLayout_5, 0, 0, 1, 1)
 
         self.line_16 = QFrame(self.gridLayoutWidget_3)
@@ -368,7 +370,14 @@ class Ui_MainWindow(object):
         self.detection_label.setMidLineWidth(2)
         self.detection_label.setAlignment(Qt.AlignCenter)
         self.detection_label.setWordWrap(False)
-        self.detection_label.setStyleSheet("background-color: orange;")
+        self.groupBox_4 = QGroupBox(self.centralwidget)
+        self.groupBox_4.setObjectName(u"groupBox_4")
+        self.groupBox_4.setGeometry(QRect(690, 580, 321, 111))
+        self.connection_modeCB = QComboBox(self.groupBox_4)
+        self.connection_modeCB.addItem("Serial")
+        self.connection_modeCB.addItem("Network")
+        self.connection_modeCB.setObjectName(u"connection_modeCB")
+        self.connection_modeCB.setGeometry(QRect(30, 30, 261, 51))
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -398,10 +407,11 @@ class Ui_MainWindow(object):
         self.DataThread.DataUpdate.connect(self.DataUpdateSlot) # -> data thread içerisindeki DataUpdate sinyali DataUpdateSlot fonksiyonuna bağlanıyor
         self.datastart_button.clicked.connect(self.start_data) # -> data okuma başlatma butonuna bağlanıyor
         self.datastop_button.clicked.connect(self.stop_data) # -> data okuma durdurma butonuna bağlanıyor
-        
+
         self.retranslateUi(MainWindow)
 
         QMetaObject.connectSlotsByName(MainWindow)
+    # setupUi
         
     # -> seçili led butonları üzerinden seri bağlantı ile ledleri yakma fonksiyonu
     # -> led butonlarının durumları kontrol ediliyor. ona göre seri port üzerinden veri gönderiliyor.
@@ -533,25 +543,25 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Data Monitoring GUI v0.2", None))
-        self.videofeed_label.setText("Kamera görüntüsü başlatılmadı.")
+        self.videofeed_label.setText("")
         self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Sensor Data - READ", None))
-        self.gyrox_label.setText("Bağlantı Yok")
+        self.gyrox_label.setText("")
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Pitch Angle", None))
-        self.accelx_label.setText("Bağlantı Yok")
+        self.accelx_label.setText("")
         self.label_10.setText(QCoreApplication.translate("MainWindow", u"GyroY", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"AccelX", None))
-        self.pitchangle_label.setText("Bağlantı Yok")
-        self.gyroy_label.setText("Bağlantı Yok")
-        self.yaw_angle.setText("Bağlantı Yok")
-        self.accely_label.setText("Bağlantı Yok")
+        self.pitchangle_label.setText("")
+        self.gyroy_label.setText("")
+        self.yaw_angle.setText("")
+        self.accely_label.setText("")
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"AccelY", None))
         self.label_12.setText(QCoreApplication.translate("MainWindow", u"GyroZ", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"AccelZ", None))
-        self.rollangle_label.setText("Bağlantı Yok")
+        self.rollangle_label.setText("")
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Roll Angle", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"GyroX", None))
-        self.accelz_label.setText("Bağlantı Yok")
-        self.gyroz_label.setText("Bağlantı Yok")
+        self.accelz_label.setText("")
+        self.gyroz_label.setText("")
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Yaw Angle", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Sensor Data - WRITE", None))
         self.led2_button.setText(QCoreApplication.translate("MainWindow", u"Led 2", None))
@@ -563,7 +573,9 @@ class Ui_MainWindow(object):
         self.camerastart_button_object.setText(QCoreApplication.translate("MainWindow", u"Start Camera Feed - Object Detection", None))
         self.datastart_button.setText(QCoreApplication.translate("MainWindow", u"Start Data Reading", None))
         self.datastop_button.setText(QCoreApplication.translate("MainWindow", u"Stop Data Reading", None))
-        self.detection_label.setText("IDLE")
+        self.detection_label.setText("")
+        self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Connection Mode", None))
+        self.connection_modeCB.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Select Connection Mode", None))
     # retranslateUi
    
 # mikrokontrolcü seri port bağlantısı -> kamera testi yaparken yorum satırı yap aşağıdaki ikisini
