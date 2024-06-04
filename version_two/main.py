@@ -20,6 +20,7 @@ import cv2
 from ultralytics import YOLO
 import torch
 import os
+import requests
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -413,6 +414,8 @@ class Ui_MainWindow(object):
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
         
+    esp32_ip = "10.0.0.160" # -> esp32'nin IP adresi    
+        
     # -> seçili led butonları üzerinden seri bağlantı ile ledleri yakma fonksiyonu
     # -> led butonlarının durumları kontrol ediliyor. ona göre seri port üzerinden veri gönderiliyor.
     # -> gönderilen veriye göre mikrokontrolcüdeki kodlar çalışıyor. -> gcs_gui_v2.ino
@@ -531,15 +534,41 @@ class Ui_MainWindow(object):
         self.videofeed_label.setPixmap(QPixmap.fromImage(image)) 
     
     def DataUpdateSlot(self, data):
-        self.accelx_label.setText(str(data[0]))
-        self.accely_label.setText(str(data[1]))
-        self.accelz_label.setText(str(data[2]))
-        self.gyrox_label.setText(str(data[3]))
-        self.gyroy_label.setText(str(data[4]))
-        self.gyroz_label.setText(str(data[5]))
-        self.rollangle_label.setText(str(data[6]))
-        self.pitchangle_label.setText(str(data[7]))
-        self.yaw_angle.setText(str(data[8]))
+        c_mode = self.connection_modeCB.currentText()
+        if c_mode == "Network":
+            response = requests.get(f"http://{self.esp32_ip}/sensor")
+            if response.status_code == 200:
+                data = response.json()
+                sensor_data = [
+                    data["acceleration_x"],
+                    data["acceleration_y"],
+                    data["acceleration_z"],
+                    data["gyro_x"],
+                    data["gyro_y"],
+                    data["gyro_z"],
+                    data["roll"],
+                    data["pitch"],
+                    data["yaw"]
+                ]
+                self.accelx_label.setText(str(sensor_data[0]))
+                self.accely_label.setText(str(sensor_data[1]))
+                self.accelz_label.setText(str(sensor_data[2]))
+                self.gyrox_label.setText(str(sensor_data[3]))
+                self.gyroy_label.setText(str(sensor_data[4]))
+                self.gyroz_label.setText(str(sensor_data[5]))
+                self.rollangle_label.setText(str(sensor_data[6]))
+                self.pitchangle_label.setText(str(sensor_data[7]))
+                self.yaw_angle.setText(str(sensor_data[8]))
+        else:
+            self.accelx_label.setText(str(data[0]))
+            self.accely_label.setText(str(data[1]))
+            self.accelz_label.setText(str(data[2]))
+            self.gyrox_label.setText(str(data[3]))
+            self.gyroy_label.setText(str(data[4]))
+            self.gyroz_label.setText(str(data[5]))
+            self.rollangle_label.setText(str(data[6]))
+            self.pitchangle_label.setText(str(data[7]))
+            self.yaw_angle.setText(str(data[8]))
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Data Monitoring GUI v0.2", None))
@@ -583,7 +612,7 @@ esp32 = serial.Serial("COM6", 115200)
 print("Bağlı olan COM: " + esp32.name)
         
 # -> esp32 üzerinden gelen veriyi okuyan thread
-class Data_Worker(QThread):
+class Data_Worker(QThread): # -> Serial port üzerinden gelen veriyi okuyan thread
     DataUpdate = Signal(list) # -> DataUpdate sinyali işlenmiş veriyi DataUpdateSlot fonksiyonuna gönderiyor
     
     def readData(self):
