@@ -1,5 +1,5 @@
 // Written by Mustafa Osman Dilmaç
-// 30/05/2024 21:10
+// 04/06/2024 17:30
 
 #include <Wire.h>
 #include <Adafruit_MPU6050.h>
