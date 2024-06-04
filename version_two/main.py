@@ -419,38 +419,92 @@ class Ui_MainWindow(object):
     # -> seçili led butonları üzerinden seri bağlantı ile ledleri yakma fonksiyonu
     # -> led butonlarının durumları kontrol ediliyor. ona göre seri port üzerinden veri gönderiliyor.
     # -> gönderilen veriye göre mikrokontrolcüdeki kodlar çalışıyor. -> gcs_gui_v2.ino
+    
+    # -> network üzerinden çalışması için gerekli düzenlemeler yapıldı
+    # -> 1-0 2-0 gibi kodlamak tam düzgün çalışmıyor. Butonaların durumlarına göre çalışması daha sağlıklı olur. Eklenecek!
     def on_led1_button_clicked(self):
-        led1_state = self.led1_button.isChecked() # -> checkable yapmamızın nedeni burada
-        if led1_state:
-            esp32.write(b'1') # -> buradaki b byte anlamına geliyor
-            self.led1_button.setStyleSheet("background-color: green;")
-            print("Led 1 açıldı")
-        else:
-            esp32.write(b'2')
-            self.led1_button.setStyleSheet("background-color: #343944;")
-            print("Led 1 kapatıldı")
+        c_mode = self.connection_modeCB.currentText()
+        if c_mode == "Network":
+            led1_state = self.led1_button.isChecked()
+            if led1_state:
+                try:
+                    requests.get(f"http://{self.esp32_ip}/led?state={1}")
+                    self.led1_button.setStyleSheet("background-color: green;")
+                except Exception as e:
+                    self.sensor_label.setText(f"Error controlling LED: {e}")
+            else:
+                try:
+                    requests.get(f"http://{self.esp32_ip}/led?state={0}")
+                    self.led1_button.setStyleSheet("background-color: #343944;")
+                except Exception as e:
+                    self.sensor_label.setText(f"Error controlling LED: {e}")
+                                 
+        if c_mode == "Serial":  
+            led1_state = self.led1_button.isChecked() # -> checkable yapmamızın nedeni burada
+            if led1_state:
+                esp32.write(b'1') # -> buradaki b byte anlamına geliyor
+                self.led1_button.setStyleSheet("background-color: green;")
+                print("Led 1 açıldı")
+            else:
+                esp32.write(b'2')
+                self.led1_button.setStyleSheet("background-color: #343944;")
+                print("Led 1 kapatıldı")
             
     def on_led2_button_clicked(self):
-        led2_state = self.led2_button.isChecked()
-        if led2_state:
-            esp32.write(b'3')
-            self.led2_button.setStyleSheet("background-color: green;")
-            print("Led 2 açıldı")
-        else:
-            esp32.write(b'4')
-            self.led2_button.setStyleSheet("background-color: #343944;")
-            print("Led 2 kapatıldı")
+        c_mode = self.connection_modeCB.currentText()
+        if c_mode == "Network":
+            led1_state = self.led1_button.isChecked()
+            if led1_state:
+                try:
+                    requests.get(f"http://{self.esp32_ip}/led?state={2}")
+                    self.led1_button.setStyleSheet("background-color: green;")
+                except Exception as e:
+                    self.sensor_label.setText(f"Error controlling LED: {e}")
+            else:
+                try:
+                    requests.get(f"http://{self.esp32_ip}/led?state={0}")
+                    self.led1_button.setStyleSheet("background-color: #343944;")
+                except Exception as e:
+                    self.sensor_label.setText(f"Error controlling LED: {e}")
+                               
+        if c_mode == "Serial":  
+            led1_state = self.led1_button.isChecked() # -> checkable yapmamızın nedeni burada
+            if led1_state:
+                esp32.write(b'3') # -> buradaki b byte anlamına geliyor
+                self.led1_button.setStyleSheet("background-color: green;")
+                print("Led 2 açıldı")
+            else:
+                esp32.write(b'4')
+                self.led1_button.setStyleSheet("background-color: #343944;")
+                print("Led 2 kapatıldı")
     
     def on_led3_button_clicked(self):
-        led3_state = self.led3_button.isChecked()
-        if led3_state:
-            esp32.write(b'5')
-            self.led3_button.setStyleSheet("background-color: green;")
-            print("Led 3 açıldı")
-        else:
-            esp32.write(b'6')
-            self.led3_button.setStyleSheet("background-color: #343944;")
-            print("Led 3 kapatıldı")      
+        c_mode = self.connection_modeCB.currentText()
+        if c_mode == "Network":
+            led1_state = self.led1_button.isChecked()
+            if led1_state:
+                try:
+                    requests.get(f"http://{self.esp32_ip}/led?state={3}")
+                    self.led1_button.setStyleSheet("background-color: green;")
+                except Exception as e:
+                    self.sensor_label.setText(f"Error controlling LED: {e}")
+            else:
+                try:
+                    requests.get(f"http://{self.esp32_ip}/led?state={0}")
+                    self.led1_button.setStyleSheet("background-color: #343944;")
+                except Exception as e:
+                    self.sensor_label.setText(f"Error controlling LED: {e}")
+                    
+        if c_mode == "Serial":  
+            led1_state = self.led1_button.isChecked() # -> checkable yapmamızın nedeni burada
+            if led1_state:
+                esp32.write(b'5') # -> buradaki b byte anlamına geliyor
+                self.led1_button.setStyleSheet("background-color: green;")
+                print("Led 3 açıldı")
+            else:
+                esp32.write(b'6')
+                self.led1_button.setStyleSheet("background-color: #343944;")
+                print("Led 3 kapatıldı")  
           
     def start_data(self):
         self.DataThread.start()
